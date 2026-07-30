@@ -105,8 +105,8 @@ const startTimer = async () => {
   setIsRunning(true);
   setTimeLeft(DURATION);
 
-  
-
+  startSound.current.currentTime = 0;
+  startSound.current.play();
 
   localStorage.setItem(
     `timer-${task.id}`,
@@ -128,16 +128,12 @@ const startTimer = async () => {
       return;
     }
 
-    startSound.current.currentTime = 0;
-startSound.current.play().catch(() => {});
-
     await updateFocusStatus(uuid, true);
     await updateTaskStatus(task.id, "running");
   } catch (error) {
     console.log(error);
   }
 };
-
 
   // -------------------------------------------------------------------------------------------------------------------------------//
   const stopAlarm = async () => {
