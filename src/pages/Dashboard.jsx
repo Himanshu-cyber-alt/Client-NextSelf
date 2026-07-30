@@ -7,12 +7,14 @@
   import CreateTask from "../components/CreateTask";
   import TaskCard from "../components/TaskCard";
 
+
   import { getTasks, getDiamond } from "../services/authService";
 
   export default function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [diamond, setDiamond] = useState(0);
+      const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
     const uuid = localStorage.getItem("uuid");
 
@@ -99,9 +101,11 @@ return (
       })
       .map((task) => (
         <TaskCard
-          key={task.id}
-          task={task}
-          loadDiamond={loadDiamond}
+           key={task.id}
+  task={task}
+  loadDiamond={loadDiamond}
+  buttonsDisabled={buttonsDisabled}
+  setButtonsDisabled={setButtonsDisabled}
         />
       ))
   )}

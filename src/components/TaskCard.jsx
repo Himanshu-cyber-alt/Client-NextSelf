@@ -15,7 +15,10 @@ const DURATION = 0.1 * 60;
 const audio = new Audio("/done.mp3");
 
 
-export default function TaskCard({ task, loadDiamond }) {
+export default function TaskCard({   task,
+  loadDiamond,
+  buttonsDisabled,
+  setButtonsDisabled, }) {
 
   const cliamSound = useRef(new Audio("/b.mp3"));
   const startSound = useRef(new Audio("/a.mp3"))
@@ -41,7 +44,8 @@ export default function TaskCard({ task, loadDiamond }) {
         clearInterval(interval);
 
         setTimeLeft(0);
-        setIsRunning(false);
+setIsRunning(false);
+setButtonsDisabled(false);
 
         localStorage.removeItem(`timer-${task.id}`);
 
@@ -100,6 +104,9 @@ export default function TaskCard({ task, loadDiamond }) {
   // ----------------------------------------------------------------------------------------------------------------------------------
 
 const startTimer = async () => {
+
+    if (buttonsDisabled) return;
+  setButtonsDisabled(true);
   const startedAt = Date.now();
 
   setIsRunning(true);
@@ -123,16 +130,18 @@ const startTimer = async () => {
 
     const response = await checkFocusStatus(uuid);
 
-    if (response.is_running) {
-      alert("Finish your current focus session first!");
-      return;
-    }
+  if (response.is_running) {
+  setButtonsDisabled(false);
+  alert("Finish your current focus session first!");
+  return;
+}
 
     await updateFocusStatus(uuid, true);
     await updateTaskStatus(task.id, "running");
   } catch (error) {
-    console.log(error);
-  }
+  setButtonsDisabled(false);
+  console.log(error);
+}
 };
 
   // -------------------------------------------------------------------------------------------------------------------------------//
@@ -225,6 +234,7 @@ const startTimer = async () => {
   ) : !isRunning ? (
     <button
       onClick={startTimer}
+      disabled={buttonsDisabled}
       className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2"
     >
       <FaStudiovinari className="text-xl" />
