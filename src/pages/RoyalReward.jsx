@@ -207,7 +207,8 @@ return (
   <div
     className="fixed inset-0 overflow-hidden bg-cover bg-center flex items-center justify-center"
     style={{
-      backgroundImage: "url('seven.jpg')",
+      backgroundImage:
+        "url('seven.jpg')",
     }}
   >
     {/* Dark Overlay */}
@@ -216,19 +217,19 @@ return (
     {/* Dashboard Button */}
     <button
       onClick={() => navigate("/home")}
-      className="absolute top-6 left-6 z-20 bg-gray-700 hover:bg-black text-white px-5 py-2 rounded-xl font-semibold transition"
+      className="absolute top-6 left-6 z-20 bg-gray-600 hover:bg-black text-white px-5 py-2 rounded-xl font-semibold transition"
     >
       ← Dashboard
     </button>
 
     {/* Main Content */}
-    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-6 w-full h-full p-6">
+    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-6 w-full h-screen px-6">
 
-      {/* ================= Left Card ================= */}
-      <div className="w-full max-w-[800px] h-[90vh] bg-[#16181d] border-2 border-gray-700 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      {/* ================= Spin Wheel ================= */}
+      <div className="w-full max-w-[800px] max-h-[90vh] overflow-hidden bg-[#16181d] border-2 border-gray-700 rounded-3xl shadow-2xl">
 
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 bg-[#23262d] border-b border-gray-700 flex-shrink-0">
+        <div className="flex justify-between items-center px-6 py-4 bg-[#23262d] border-b border-gray-700">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
             TIME
           </h1>
@@ -242,27 +243,25 @@ return (
         </div>
 
         {/* Video */}
-        <div className="flex-1 p-4">
-          <div className="w-full h-full rounded-2xl overflow-hidden border-2 border-gray-700 bg-black">
-            <video
-              ref={videoRef}
-              playsInline
-              poster="four.jpg"
-              className="w-full h-full object-cover"
-              onEnded={() => {
-                setPlaying(false);
-                setShowReward(true);
-              }}
-            />
-          </div>
+        <div className="rounded-xl overflow-hidden border-2 border-gray-700 bg-black">
+          <video
+            ref={videoRef}
+            playsInline
+            poster="four.jpg"
+            className="w-full h-[260px] sm:h-[360px] md:h-[450px] object-cover"
+            onEnded={() => {
+              setPlaying(false);
+              setShowReward(true);
+            }}
+          />
         </div>
 
         {/* Spin Button */}
-        <div className="p-4 flex-shrink-0">
+        <div className="p-4">
           <button
             onClick={handleSpin}
             disabled={playing || diamonds < SPIN_COST}
-            className="w-full rounded-2xl bg-green-700 hover:bg-green-600 py-4 text-xl font-bold text-white disabled:opacity-40 transition flex items-center justify-center gap-3"
+            className="w-full rounded-2xl bg-gray-700 hover:bg-green-700 py-4 text-xl font-bold text-white disabled:opacity-40 transition flex items-center justify-center gap-3"
           >
             <FaStudiovinari className="text-2xl" />
             <span>{SPIN_COST} SPIN</span>
@@ -270,18 +269,19 @@ return (
         </div>
       </div>
 
-      {/* ================= Right Card ================= */}
+      {/* ================= Reward Card ================= */}
       <div
-        className="relative w-full max-w-[480px] h-[90vh] rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-700 bg-cover bg-center"
+        className="relative w-full max-w-[480px] max-h-[90vh] rounded-3xl p-8 shadow-2xl overflow-hidden border-2 border-gray-700 bg-cover bg-center"
         style={{
-          backgroundImage: "url('six.jpg')",
+          backgroundImage:
+            "url('six.jpg')",
         }}
       >
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/50"></div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full px-8">
+        <div className="relative z-10 flex flex-col items-center justify-center h-full">
 
           <h2 className="text-5xl font-bold text-white">
             TIME
@@ -295,7 +295,7 @@ return (
           <button
             onClick={startTimer}
             disabled={rewardMinutes <= 0}
-            className="mt-12 w-full rounded-2xl bg-red-700 hover:bg-red-600 py-4 text-xl font-bold text-white transition disabled:opacity-40"
+            className="mt-12 w-full rounded-2xl bg-red-700 hover:bg-red-700 py-4 font-semibold text-white transition disabled:opacity-1"
           >
             Consume
           </button>
@@ -305,6 +305,7 @@ return (
     </div>
   </div>
 );
+
 
 }
 
