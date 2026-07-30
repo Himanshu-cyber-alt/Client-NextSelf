@@ -71,15 +71,18 @@ export default function RoyalReward() {
     if (spinningRef.current || playing || diamonds < SPIN_COST) return;
     spinningRef.current = true;
 
-    try {
+    try { 
+      
+      spin.current.currentTime = 0;
+      await spin.current.play();
+
       const reward = pickReward(REWARDS);
       const time = reward.duration;
 
       const result = await addReward(uuid, time);
 
   
-      spin.current.currentTime = 0;
-      await spin.current.play();
+     
 
       // reflect the newly awarded minutes so Start Focus uses the right duration
       setRewardMinutes(result.data.reward_minutes);
