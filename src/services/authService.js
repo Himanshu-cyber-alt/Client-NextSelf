@@ -5,7 +5,6 @@ const API = "https://server-nextself.onrender.com/api/auth";
 
 
 
-
 export const googleLogin = async (idToken) => {
 
 
