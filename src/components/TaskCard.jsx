@@ -105,8 +105,8 @@ const startTimer = async () => {
   setIsRunning(true);
   setTimeLeft(DURATION);
 
-  startSound.current.currentTime = 0;
-startSound.current.play().catch(() => {});
+  
+
 
   localStorage.setItem(
     `timer-${task.id}`,
@@ -127,6 +127,9 @@ startSound.current.play().catch(() => {});
       alert("Finish your current focus session first!");
       return;
     }
+
+    startSound.current.currentTime = 0;
+startSound.current.play().catch(() => {});
 
     await updateFocusStatus(uuid, true);
     await updateTaskStatus(task.id, "running");
