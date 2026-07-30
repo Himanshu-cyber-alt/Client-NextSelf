@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const API = "http://localhost:5000/api/auth";
+const API = "https://server-nextself.onrender.com/api/auth";
 
 
 
