@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaStudiovinari } from "react-icons/fa";
 
 export default function RoyalReward() {
-  const [diamonds, setDiamonds] = useState(15);
+  const [diamonds, setDiamonds] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
   const [showReward, setShowReward] = useState(false);
