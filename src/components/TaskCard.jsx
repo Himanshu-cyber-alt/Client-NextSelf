@@ -99,40 +99,41 @@ export default function TaskCard({ task, loadDiamond }) {
 
   // ----------------------------------------------------------------------------------------------------------------------------------
 
-  const startTimer = async () => {
-    try {
-      const uuid = localStorage.getItem("uuid");
+const startTimer = async () => {
+  const startedAt = Date.now();
 
-      const response = await checkFocusStatus(uuid);
+  setIsRunning(true);
+  setTimeLeft(DURATION);
 
-      if (response.is_running) {
-        alert("Finish your current focus session first!");
-        return;
-      }
+  startSound.current.currentTime = 0;
+startSound.current.play().catch(() => {});
 
-      await updateFocusStatus(uuid, true);
-      await updateTaskStatus(task.id, "running");
+  localStorage.setItem(
+    `timer-${task.id}`,
+    JSON.stringify({
+      startedAt,
+      duration: DURATION,
+    })
+  );
 
-    startSound.current.currentTime = 0;
-  await startSound.current.play();
+  runTimer(startedAt);
 
-  
-      const startedAt = Date.now();
+  try {
+    const uuid = localStorage.getItem("uuid");
 
-      localStorage.setItem(
-        `timer-${task.id}`, 
-        JSON.stringify({
-          startedAt,
-          duration: DURATION,
-        })
-      );
+    const response = await checkFocusStatus(uuid);
 
-      runTimer(startedAt);
-    } catch (error) {
-      console.log(error);
+    if (response.is_running) {
+      alert("Finish your current focus session first!");
+      return;
     }
 
-  };
+    await updateFocusStatus(uuid, true);
+    await updateTaskStatus(task.id, "running");
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
   // -------------------------------------------------------------------------------------------------------------------------------//
