@@ -10,7 +10,7 @@ import {
 } from "../services/authService";
 
 import { FaStudiovinari } from "react-icons/fa";
-const DURATION = 0.1 * 60;
+const DURATION = 45 * 60;
 
 const audio = new Audio("/done.mp3");
 
