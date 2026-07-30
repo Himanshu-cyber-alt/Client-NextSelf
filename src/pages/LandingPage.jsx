@@ -23,6 +23,7 @@ export default function LandingPage() {
       // Save your own JWT
       localStorage.setItem("token", data.token);
       localStorage.setItem("uuid", data.user.id);
+      localStorage.setItem("email",data.user.email);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       navigate("/home");

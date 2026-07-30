@@ -136,6 +136,7 @@ export const logoutUser = () => {
 
   // If you store any other data
   localStorage.removeItem("user");
+  localStorage.removeItem("email");
 
   // Optional: clear everything
   // localStorage.clear();

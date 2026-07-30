@@ -13,6 +13,13 @@ import { logoutUser } from "../services/authService";
 
 export default function RightSidebar({ isOpen, onClose }) {
 
+  const  email = localStorage.getItem("email");
+ const name = email.split("@")[0].replace(/\d+/g, "");
+
+
+  
+
+  
   const navigate = useNavigate();
 
 
@@ -50,10 +57,10 @@ export default function RightSidebar({ isOpen, onClose }) {
         <div className="flex flex-col items-center py-8 border-b border-zinc-700">
           <FaUserCircle className="text-7xl text-gray-300 mb-3" />
 
-          <h3 className="text-xl font-semibold text-white">Himanshu</h3>
+          <h3 className="text-xl font-semibold text-white">{name}</h3>
 
           <p className="text-white text-sm">
-            himanshu@gmail.com
+            {email}
           </p>
         </div>
 

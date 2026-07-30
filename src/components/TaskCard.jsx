@@ -147,7 +147,7 @@ const startTimer = async () => {
   // -------------------------------------------------------------------------------------------------------------------------------//
   const stopAlarm = async () => {
 
-      cliamSound.current.currentTime = 0;
+    cliamSound.current.currentTime = 0;
   await cliamSound.current.play();
 
     audio.pause();
