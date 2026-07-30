@@ -271,7 +271,7 @@ export default function RoyalReward() {
 
       {/* ================= Reward Card ================= */}
       <div
-        className="relative w-full max-w-[480px] max-h-[90vh] rounded-3xl p-8 shadow-2xl overflow-hidden border-2 border-gray-700 bg-cover bg-center"
+        className="relative w-full max-w-[380px] max-h-[90vh] rounded-3xl p-8 shadow-2xl overflow-hidden border-2 border-gray-700 bg-cover bg-center"
         style={{
           backgroundImage:
             "url('six.jpg')",
