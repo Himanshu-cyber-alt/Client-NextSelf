@@ -915,9 +915,9 @@ export default function RoyalReward() {
       await claimTime.current.play();
 
       const startedAt = Date.now();
-     // const totalSeconds = rewardMinutes * 60;
+     const totalSeconds = rewardMinutes * 60;
 
-     const totalSeconds = 10;
+
 
       // resume AudioContext - browsers suspend it until a user gesture, this click counts
       if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
