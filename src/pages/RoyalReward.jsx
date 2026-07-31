@@ -535,7 +535,9 @@ export default function RoyalReward() {
       await claimTime.current.play();
 
       const startedAt = Date.now();
-     const totalSeconds = rewardMinutes * 60;
+    //  const totalSeconds = rewardMinutes * 60;
+
+    const totalSeconds = 1;
 
    
 
