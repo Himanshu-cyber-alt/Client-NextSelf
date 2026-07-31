@@ -656,6 +656,9 @@ export default function TaskCard({
   // -------------------------------------------------------------------------------------------------------------------------------//
   const stopAlarm = async () => {
 
+     setButtonsDisabled(false);
+     setStatus("completed")
+
     cliamSound.current.currentTime = 0;
     await cliamSound.current.play();
 
