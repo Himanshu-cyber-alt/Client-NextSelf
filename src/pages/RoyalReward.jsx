@@ -537,7 +537,7 @@ export default function RoyalReward() {
       const startedAt = Date.now();
     //  const totalSeconds = rewardMinutes * 60;
 
-    const totalSeconds = 1;
+    const totalSeconds = 10;
 
    
 
