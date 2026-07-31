@@ -345,7 +345,7 @@ import {
 } from "../services/authService";
 
 import { FaStudiovinari } from "react-icons/fa";
-const DURATION = 45 * 60;
+const DURATION = 0.1 * 60;
 
 const audio = new Audio("/done.mp3");
 
@@ -644,9 +644,9 @@ export default function TaskCard({
             <div className="flex justify-center sm:justify-end">
               <div className="rounded-xl border border-[#5d4d36]/30 bg-white/40 px-5 py-3 backdrop-blur-sm">
                 <p className="font-mono text-4xl font-bold tracking-wider text-[#1d1b18]">
-                  {isRunning ? String(minutes).padStart(2, "0") : "--"}
+                  {isRunning ? String(minutes).padStart(2, "0") : "45"}
                   <span className="text-[#000000]">:</span>
-                  {isRunning ? String(seconds).padStart(2, "0") : "--"}
+                  {isRunning ? String(seconds).padStart(2, "0") : "00"}
                 </p>
               </div>
             </div>
@@ -660,15 +660,16 @@ export default function TaskCard({
             ) : isRunning ? (
               <button
                 disabled
-                className="w-full rounded-xl bg-[#d8d1c3] py-3 font-semibold text-[#6b5d46] flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-[#29801a] py-3 font-semibold text-[#000000] flex items-center justify-center gap-2"
               >
                 <FaStudiovinari className="text-xl" />
                 <span>Running...</span>
               </button>
+              
             ) : runningElsewhere ? (
               <button
                 disabled
-                className="w-full rounded-xl bg-[#d8d1c3] py-3 font-semibold text-[#6b5d46] flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-[#29801a] py-3 font-semibold text-[#fefefa] flex items-center justify-center gap-2"
               >
                 <FaStudiovinari className="text-xl" />
                 <span>Running</span>
@@ -677,7 +678,7 @@ export default function TaskCard({
               <button
                 onClick={startTimer}
                 disabled={buttonsDisabled}
-                className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full rounded-xl bg-[#000000] py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <FaStudiovinari className="text-xl" />
                 <span>Start</span>
