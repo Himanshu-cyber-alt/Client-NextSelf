@@ -401,7 +401,7 @@ export default function TaskCard({ task, loadDiamond, buttonsDisabled, setButton
   };
 
   // -----------------------------------------------------------------------------------------------------------------------
-  const runTimer = (startedAt) => {
+const runTimer = (startedAt) => {
     setIsRunning(true);
 
     const interval = setInterval(async () => {
@@ -420,6 +420,22 @@ export default function TaskCard({ task, loadDiamond, buttonsDisabled, setButton
         keepAliveAudio.current.pause();
         keepAliveAudio.current.currentTime = 0;
 
+        // Show UI + play alarm IMMEDIATELY — don't wait on network calls
+        setStatus("completed");
+
+        // The Web Audio scheduled alarm (below) already started playing itself
+        // at the right time if it was armed. This is the fallback path in case
+        // Web Audio wasn't available/preloaded in time.
+        if (!scheduledSourceRef.current) {
+          audio.loop = true;
+          audio.volume = 1;
+          audio.play();
+        }
+
+        setShowAlarmPopup(true);
+        clearMediaSession();
+
+        // Backend bookkeeping happens AFTER the popup is already showing
         try {
           const uuid = localStorage.getItem("uuid");
           const title = task.title;
@@ -427,21 +443,6 @@ export default function TaskCard({ task, loadDiamond, buttonsDisabled, setButton
           await updateFocusStatus(uuid, false);
           await updateTaskStatus(task.id, "completed");
           await addHistory(uuid, title);
-
-          setStatus("completed");
-
-          // The Web Audio scheduled alarm (below) already started playing itself
-          // at the right time if it was armed. This is the fallback path in case
-          // Web Audio wasn't available/preloaded in time.
-          if (!scheduledSourceRef.current) {
-            audio.loop = true;
-            audio.volume = 1;
-            audio.play();
-          }
-
-          setShowAlarmPopup(true);
-          clearMediaSession();
-
           await addDiamond(uuid, 10);
         } catch (error) {
           console.log(error);
@@ -453,7 +454,6 @@ export default function TaskCard({ task, loadDiamond, buttonsDisabled, setButton
 
     return interval;
   };
-
   // ------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     const saved = localStorage.getItem(`timer-${task.id}`);
