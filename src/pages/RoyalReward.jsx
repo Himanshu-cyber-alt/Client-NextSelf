@@ -734,9 +734,9 @@ export default function RoyalReward() {
   const spinningRef = useRef(false); 
 
   const REWARDS = [
-    { duration: 30, rarity: "common", chance: 50, video: "/30.mp4" },
-    { duration: 45, rarity: "rare", chance: 35, video: "/45.mp4" },
-    { duration: 60, rarity: "legendary", chance: 15, video: "/60.mp4" },
+    { duration: 3, rarity: "common", chance: 50, video: "/30.mp4" },
+    { duration: 3, rarity: "rare", chance: 35, video: "/45.mp4" },
+    { duration: 3, rarity: "legendary", chance: 15, video: "/60.mp4" },
   ];
 
   // ---- Setup Keep-Alive ----
@@ -856,8 +856,8 @@ export default function RoyalReward() {
       const startedAt = Date.now();
       
      
-      // const totalSeconds = rewardMinutes * 60; 
-      const totalSeconds  = 180;
+     const totalSeconds = rewardMinutes * 60; 
+    
 
       // Start the keep-alive background audio
       keepAliveAudio.current.currentTime = 0;
