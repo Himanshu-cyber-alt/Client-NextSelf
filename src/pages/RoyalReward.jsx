@@ -31,9 +31,9 @@ export default function RoyalReward() {
   const  email = localStorage.getItem("email");
 
   const REWARDS = [
-    { duration: 0.5, rarity: "common", chance: 50, video: "/30.mp4" },
-    { duration: 0.5, rarity: "rare", chance: 35, video: "/45.mp4" },
-    { duration: 0.5, rarity: "legendary", chance: 15, video: "/60.mp4" },
+    { duration: 1, rarity: "common", chance: 50, video: "/30.mp4" },
+    { duration: 1, rarity: "rare", chance: 35, video: "/45.mp4" },
+    { duration: 1, rarity: "legendary", chance: 15, video: "/60.mp4" },
   ];
 
   // ---- Cleanup Timer on Unmount ----
