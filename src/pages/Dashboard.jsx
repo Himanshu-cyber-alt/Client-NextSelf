@@ -158,7 +158,7 @@ export default function Dashboard() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [diamond]);
 
   const loadTasks = async () => {
     try {
