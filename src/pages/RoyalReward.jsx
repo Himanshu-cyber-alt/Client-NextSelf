@@ -855,8 +855,9 @@ export default function RoyalReward() {
 
       const startedAt = Date.now();
       
-      // NOTE: Using rewardMinutes * 60 for production!
-      const totalSeconds = rewardMinutes * 60; 
+     
+      // const totalSeconds = rewardMinutes * 60; 
+      const totalSeconds  = 180;
 
       // Start the keep-alive background audio
       keepAliveAudio.current.currentTime = 0;
