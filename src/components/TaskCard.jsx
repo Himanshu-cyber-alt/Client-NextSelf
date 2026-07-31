@@ -345,7 +345,7 @@ import {
 } from "../services/authService";
 
 import { FaStudiovinari } from "react-icons/fa";
-const DURATION = 0.1 * 60;
+const DURATION = 10 * 60;
 
 const audio = new Audio("/done.mp3");
 
@@ -654,7 +654,7 @@ export default function TaskCard({
 
           <div className="mt-6 border-t border-[#5d4d36]/20 pt-6">
             {status === "completed" ? (
-              <button disabled className="w-full rounded-xl bg-[#0c842690] py-3 font-semibold text-black ">
+              <button disabled className="w-full  text-xl rounded-xl bg-[#0c842690] py-3 font-semibold text-black  ">
                 Completed
               </button>
             ) : isRunning ? (
