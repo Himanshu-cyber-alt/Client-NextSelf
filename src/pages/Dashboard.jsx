@@ -128,7 +128,7 @@ import {
 } from "../services/authService";
 
 const POLL_INTERVAL = 5000;
-const DURATION = 45 * 60; // 6 seconds for testing. Change to 45 * 60 for production!
+const DURATION = 0.1 * 60; // 6 seconds for testing. Change to 45 * 60 for production!
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
