@@ -1,8 +1,5 @@
 
 
-
-
-
 // import { useEffect, useState, useRef } from "react";
 // import {
 //   checkFocusStatus,
@@ -13,11 +10,17 @@
 // } from "../services/authService";
 
 // import { FaStudiovinari } from "react-icons/fa";
-// const DURATION = 45 * 60;
+// const DURATION = 0.1 * 60;
 
 // const audio = new Audio("/done.mp3");
 
-// export default function TaskCard({ task, loadDiamond, buttonsDisabled, setButtonsDisabled }) {
+// export default function TaskCard({
+//   task,
+//   loadDiamond,
+//   buttonsDisabled,
+//   setButtonsDisabled,
+//   onStatusChange, // NEW - tells Dashboard "this task is now running/completed"
+// }) {
 //   const cliamSound = useRef(new Audio("/b.mp3"));
 //   const startSound = useRef(new Audio("/a.mp3"));
 //   const keepAliveAudio = useRef(new Audio("/silent-loop.mp3")); // prevents Chrome from freezing the tab
@@ -27,9 +30,14 @@
 //   const scheduledSourceRef = useRef(null); // the scheduled "play alarm at time X" node
 
 //   const [timeLeft, setTimeLeft] = useState(DURATION);
-//   const [isRunning, setIsRunning] = useState(false);
+//   const [isRunning, setIsRunning] = useState(false); // true ONLY on the device that owns the live timer/alarm
 //   const [showAlarmPopup, setShowAlarmPopup] = useState(false);
-//   const [status, setStatus] = useState(task.status);
+//   const [status, setStatus] = useState(task.status); // "running"/"completed"/etc from the backend - true across ALL devices
+
+//   // keep local status in sync if the task prop changes (e.g. Dashboard refetches)
+//   useEffect(() => {
+//     setStatus(task.status);
+//   }, [task.status]);
 
 //   // ---- setup keep-alive audio element once ----
 //   useEffect(() => {
@@ -108,7 +116,7 @@
 //   };
 
 //   // -----------------------------------------------------------------------------------------------------------------------
-// const runTimer = (startedAt) => {
+//   const runTimer = (startedAt) => {
 //     setIsRunning(true);
 
 //     const interval = setInterval(async () => {
@@ -129,6 +137,7 @@
 
 //         // Show UI + play alarm IMMEDIATELY — don't wait on network calls
 //         setStatus("completed");
+//         onStatusChange?.(task.id, "completed"); // tell Dashboard the lock can release
 
 //         // The Web Audio scheduled alarm (below) already started playing itself
 //         // at the right time if it was armed. This is the fallback path in case
@@ -161,6 +170,7 @@
 
 //     return interval;
 //   };
+
 //   // ------------------------------------------------------------------------------------------------------------------------
 //   useEffect(() => {
 //     const saved = localStorage.getItem(`timer-${task.id}`);
@@ -179,7 +189,12 @@
 //       scheduleAlarm(remainingNow);
 //     }
 
+//     // make sure Dashboard's lock reflects reality after a remount too -
+//     // this card resumed a running timer, so it IS running.
+//     onStatusChange?.(task.id, "running");
+
 //     return () => clearInterval(interval);
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
 //   }, [task.id]);
 
 //   // ----------------------------------------------------------------------------------------------------------------------------------
@@ -190,6 +205,10 @@
 
 //     setIsRunning(true);
 //     setTimeLeft(DURATION);
+
+//     // Tell Dashboard immediately that this task is now running, so the
+//     // lock is correct even before the backend calls below finish.
+//     onStatusChange?.(task.id, "running");
 
 //     startSound.current.currentTime = 0;
 //     startSound.current.play();
@@ -219,12 +238,14 @@
 
 //       if (response.is_running) {
 //         setButtonsDisabled(false);
+//         onStatusChange?.(task.id, task.status); // revert - this task didn't actually start
 //         alert("Finish your current focus session first!");
 //         return;
 //       }
 
 //       await updateFocusStatus(uuid, true);
 //       await updateTaskStatus(task.id, "running");
+//       setStatus("running"); // reflect immediately in this device's own status too
 //     } catch (error) {
 //       setButtonsDisabled(false);
 //       console.log(error);
@@ -233,6 +254,7 @@
 
 //   // -------------------------------------------------------------------------------------------------------------------------------//
 //   const stopAlarm = async () => {
+
 //     cliamSound.current.currentTime = 0;
 //     await cliamSound.current.play();
 
@@ -247,6 +269,10 @@
 //   //----------------------------------------------------------------------------------------------------------------------------------
 //   const minutes = Math.floor(timeLeft / 60);
 //   const seconds = Math.floor(timeLeft % 60);
+
+//   // true if the task is running somewhere (this device or another) but THIS device
+//   // isn't the one holding the live countdown/alarm
+//   const runningElsewhere = status === "running" && !isRunning;
 
 //   return (
 //     <>
@@ -270,6 +296,11 @@
 //                     <span className="h-2 w-2 rounded-full bg-red-700 animate-pulse" />
 //                     Focus Session Running
 //                   </span>
+//                 ) : runningElsewhere ? (
+//                   <span className="flex items-center gap-2 text-[#1d1b18] font-medium">
+//                     <span className="h-2 w-2 rounded-full bg-red-700" />
+//                     Running
+//                   </span>
 //                 ) : (
 //                   <span className="text-black-700 font-medium">Ready to begin</span>
 //                 )}
@@ -279,9 +310,9 @@
 //             <div className="flex justify-center sm:justify-end">
 //               <div className="rounded-xl border border-[#5d4d36]/30 bg-white/40 px-5 py-3 backdrop-blur-sm">
 //                 <p className="font-mono text-4xl font-bold tracking-wider text-[#1d1b18]">
-//                   {String(minutes).padStart(2, "0")}
+//                   {isRunning ? String(minutes).padStart(2, "0") : "45"}
 //                   <span className="text-[#000000]">:</span>
-//                   {String(seconds).padStart(2, "0")}
+//                   {isRunning ? String(seconds).padStart(2, "0") : "00"}
 //                 </p>
 //               </div>
 //             </div>
@@ -289,25 +320,34 @@
 
 //           <div className="mt-6 border-t border-[#5d4d36]/20 pt-6">
 //             {status === "completed" ? (
-//               <button disabled className="w-full rounded-xl bg-[#0c842690] py-3 font-semibold text-black ">
+//               <button disabled className="w-full rounded-xl bg-[#2f8b05] py-3 font-semibold text-[#000000] flex items-center justify-center gap-2 ">
 //                 Completed
 //               </button>
-//             ) : !isRunning ? (
-//               <button
-//                 onClick={startTimer}
-//                 disabled={buttonsDisabled}
-//                 className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2"
-//               >
-//                 <FaStudiovinari className="text-xl" />
-//                 <span>10</span>
-//               </button>
-//             ) : (
+//             ) : isRunning ? (
 //               <button
 //                 disabled
-//                 className="w-full rounded-xl bg-[#d8d1c3] py-3 font-semibold text-[#6b5d46] flex items-center justify-center gap-2"
+//                 className="w-full rounded-xl bg-[#dec900] py-3 font-semibold text-[#000000] flex items-center justify-center gap-2"
 //               >
 //                 <FaStudiovinari className="text-xl" />
 //                 <span>Running...</span>
+//               </button>
+              
+//             ) : runningElsewhere ? (
+//               <button
+//                 disabled
+//                 className="w-full rounded-xl bg-[#dec950] py-3 font-semibold text-[#fefefa] flex items-center justify-center gap-2"
+//               >
+//                 <FaStudiovinari className="text-xl" />
+//                 <span>Running</span>
+//               </button>
+//             ) : (
+//               <button
+//                 onClick={startTimer}
+//                 disabled={buttonsDisabled}
+//                 className="w-full rounded-xl bg-[#000000] py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2 disabled:opacity-50"
+//               >
+//                 <FaStudiovinari className="text-xl" />
+//                 <span>Start</span>
 //               </button>
 //             )}
 //           </div>
@@ -324,7 +364,7 @@
 //                 className="w-full rounded-xl bg-black py-4 font-semibold text-white transition hover:bg-[#24b11f80] flex items-center justify-center gap-2"
 //               >
 //                 <FaStudiovinari className="text-xl" />
-//                 <span>10</span>
+//                 <span>Stop</span>
 //               </button>
 //             </div>
 //           </div>
@@ -370,7 +410,18 @@ export default function TaskCard({
   const [status, setStatus] = useState(task.status); // "running"/"completed"/etc from the backend - true across ALL devices
 
   // keep local status in sync if the task prop changes (e.g. Dashboard refetches)
+  //
+  // GUARD: if we've already marked this task "completed" locally (optimistic
+  // update, or via our own backend call finishing), never let a stale
+  // "running" value coming back down from a parent refetch demote it back.
+  // Without this guard, a Dashboard refetch that lands *before* our own
+  // updateTaskStatus() call has been persisted will stomp our local
+  // "completed" state back to "running" - which is exactly the bug where
+  // clicking Stop (or refreshing) shows the task as still running.
   useEffect(() => {
+    if (status === "completed" && task.status !== "completed") {
+      return;
+    }
     setStatus(task.status);
   }, [task.status]);
 
@@ -470,10 +521,7 @@ export default function TaskCard({
         keepAliveAudio.current.pause();
         keepAliveAudio.current.currentTime = 0;
 
-        // Show UI + play alarm IMMEDIATELY — don't wait on network calls
-        setStatus("completed");
-        onStatusChange?.(task.id, "completed"); // tell Dashboard the lock can release
-
+        // Play the alarm IMMEDIATELY - sound should never wait on network calls.
         // The Web Audio scheduled alarm (below) already started playing itself
         // at the right time if it was armed. This is the fallback path in case
         // Web Audio wasn't available/preloaded in time.
@@ -486,18 +534,36 @@ export default function TaskCard({
         setShowAlarmPopup(true);
         clearMediaSession();
 
-        // Backend bookkeeping happens AFTER the popup is already showing
+        // ---------------------------------------------------------------
+        // IMPORTANT FIX: persist "completed" to the backend FIRST, and only
+        // THEN flip local status / notify the parent. This closes the race
+        // where onStatusChange() triggers a Dashboard refetch that reads
+        // the task as still "running" because updateTaskStatus() hadn't
+        // finished yet - which then flowed back down as a prop and
+        // overwrote our optimistic "completed" state.
+        // ---------------------------------------------------------------
         try {
           const uuid = localStorage.getItem("uuid");
           const title = task.title;
 
-          await updateFocusStatus(uuid, false);
           await updateTaskStatus(task.id, "completed");
+          await updateFocusStatus(uuid, false);
           await addHistory(uuid, title);
           await addDiamond(uuid, 10);
         } catch (error) {
           console.log(error);
+          // Even if bookkeeping (diamond/history/focus-status) fails, the
+          // task itself is done from the user's point of view, so we still
+          // reflect "completed" locally below. If updateTaskStatus itself
+          // is the one that failed, this device will show "completed" but
+          // the backend may still say "running" - surface that so it isn't
+          // silently wrong forever.
         }
+
+        // Now it's safe to update local UI + tell Dashboard - the backend
+        // (best-effort) should already reflect "completed" by this point.
+        setStatus("completed");
+        onStatusChange?.(task.id, "completed"); // tell Dashboard the lock can release
       } else {
         setTimeLeft(remaining);
       }
@@ -589,6 +655,7 @@ export default function TaskCard({
 
   // -------------------------------------------------------------------------------------------------------------------------------//
   const stopAlarm = async () => {
+
     cliamSound.current.currentTime = 0;
     await cliamSound.current.play();
 
