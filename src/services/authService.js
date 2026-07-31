@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const API = "https://server-nextself.onrender.com/api/auth";
+const API="https://server-nextself.onrender.com/api/auth";
 
 
 
@@ -145,13 +145,14 @@ export const logoutUser = () => {
 
 // Add this to the bottom of authService.js
 export const sendEmailAlert = async (email) => {
+
+  console.log(email);
+  
   try {
     const response = await axios.post(`${API}/send-alert`, {
       email
     });
-
-
-    console.log("Email ==> ",response);
+   console.log("Email ==> ",response);
 
     return response.data;
   } catch (error) {
