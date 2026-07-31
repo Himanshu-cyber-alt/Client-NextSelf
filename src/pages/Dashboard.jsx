@@ -110,8 +110,7 @@
 //   );
 // }
 
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import Navbar from "../components/Navbar";
 import RightSidebar from "../components/RightSidebar";
@@ -119,6 +118,8 @@ import CreateTask from "../components/CreateTask";
 import TaskCard from "../components/TaskCard";
 
 import { getTasks, getDiamond } from "../services/authService";
+
+const POLL_INTERVAL = 5000; // ms - how often to check for status changes from other devices
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -128,15 +129,57 @@ export default function Dashboard() {
 
   const uuid = localStorage.getItem("uuid");
 
+  // avoid a visible flicker/re-render if the poll comes back identical
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
+
   useEffect(() => {
     loadTasks();
     loadDiamond();
+
+    // Poll periodically so this device picks up status changes
+    // (task started/completed) made from ANY other device.
+    const interval = setInterval(() => {
+      loadTasks();
+    }, POLL_INTERVAL);
+
+    // Also refetch immediately whenever the tab/app becomes visible again -
+    // e.g. user switches back from another app on mobile. Feels instant
+    // instead of waiting for the next poll tick.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadTasks();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadTasks = async () => {
     try {
       const response = await getTasks(uuid);
-      setTasks(response.tasks);
+      const incoming = response.tasks;
+
+      // Merge instead of blind-overwrite: keep the local task object stable
+      // when nothing actually changed, so TaskCard doesn't get needlessly
+      // remounted/re-rendered every poll tick and lose its local timer state.
+      setTasks((prev) => {
+        const sameLength = prev.length === incoming.length;
+        const sameStatuses =
+          sameLength &&
+          prev.every((t, i) => {
+            const match = incoming.find((x) => x.id === t.id);
+            return match && match.status === t.status;
+          });
+
+        if (sameStatuses && sameLength) return prev; // nothing changed, skip re-render
+        return incoming;
+      });
     } catch (error) {
       console.log(error);
     }

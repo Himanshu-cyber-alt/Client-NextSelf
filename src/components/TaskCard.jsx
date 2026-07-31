@@ -335,7 +335,6 @@
 // }
 
 
-
 import { useEffect, useState, useRef } from "react";
 import {
   checkFocusStatus,
@@ -366,9 +365,14 @@ export default function TaskCard({
   const scheduledSourceRef = useRef(null); // the scheduled "play alarm at time X" node
 
   const [timeLeft, setTimeLeft] = useState(DURATION);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(false); // true ONLY on the device that owns the live timer/alarm
   const [showAlarmPopup, setShowAlarmPopup] = useState(false);
-  const [status, setStatus] = useState(task.status);
+  const [status, setStatus] = useState(task.status); // "running"/"completed"/etc from the backend - true across ALL devices
+
+  // keep local status in sync if the task prop changes (e.g. Dashboard refetches)
+  useEffect(() => {
+    setStatus(task.status);
+  }, [task.status]);
 
   // ---- setup keep-alive audio element once ----
   useEffect(() => {
@@ -576,6 +580,7 @@ export default function TaskCard({
 
       await updateFocusStatus(uuid, true);
       await updateTaskStatus(task.id, "running");
+      setStatus("running"); // reflect immediately in this device's own status too
     } catch (error) {
       setButtonsDisabled(false);
       console.log(error);
@@ -599,6 +604,10 @@ export default function TaskCard({
   const minutes = Math.floor(timeLeft / 60);
   const seconds = Math.floor(timeLeft % 60);
 
+  // true if the task is running somewhere (this device or another) but THIS device
+  // isn't the one holding the live countdown/alarm
+  const runningElsewhere = status === "running" && !isRunning;
+
   return (
     <>
       <div className="group rounded-3xl border border-[#5d4d36]/30 p-5 sm:p-0 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl bg-cover bg-center">
@@ -621,6 +630,11 @@ export default function TaskCard({
                     <span className="h-2 w-2 rounded-full bg-red-700 animate-pulse" />
                     Focus Session Running
                   </span>
+                ) : runningElsewhere ? (
+                  <span className="flex items-center gap-2 text-[#1d1b18] font-medium">
+                    <span className="h-2 w-2 rounded-full bg-red-700" />
+                    Running
+                  </span>
                 ) : (
                   <span className="text-black-700 font-medium">Ready to begin</span>
                 )}
@@ -630,9 +644,9 @@ export default function TaskCard({
             <div className="flex justify-center sm:justify-end">
               <div className="rounded-xl border border-[#5d4d36]/30 bg-white/40 px-5 py-3 backdrop-blur-sm">
                 <p className="font-mono text-4xl font-bold tracking-wider text-[#1d1b18]">
-                  {String(minutes).padStart(2, "0")}
+                  {isRunning ? String(minutes).padStart(2, "0") : "--"}
                   <span className="text-[#000000]">:</span>
-                  {String(seconds).padStart(2, "0")}
+                  {isRunning ? String(seconds).padStart(2, "0") : "--"}
                 </p>
               </div>
             </div>
@@ -643,22 +657,30 @@ export default function TaskCard({
               <button disabled className="w-full rounded-xl bg-[#0c842690] py-3 font-semibold text-black ">
                 Completed
               </button>
-            ) : !isRunning ? (
-              <button
-                onClick={startTimer}
-                disabled={buttonsDisabled}
-                className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2"
-              >
-                <FaStudiovinari className="text-xl" />
-                <span>10</span>
-              </button>
-            ) : (
+            ) : isRunning ? (
               <button
                 disabled
                 className="w-full rounded-xl bg-[#d8d1c3] py-3 font-semibold text-[#6b5d46] flex items-center justify-center gap-2"
               >
                 <FaStudiovinari className="text-xl" />
                 <span>Running...</span>
+              </button>
+            ) : runningElsewhere ? (
+              <button
+                disabled
+                className="w-full rounded-xl bg-[#d8d1c3] py-3 font-semibold text-[#6b5d46] flex items-center justify-center gap-2"
+              >
+                <FaStudiovinari className="text-xl" />
+                <span>Running</span>
+              </button>
+            ) : (
+              <button
+                onClick={startTimer}
+                disabled={buttonsDisabled}
+                className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-[#000000] flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <FaStudiovinari className="text-xl" />
+                <span>Start</span>
               </button>
             )}
           </div>
@@ -675,7 +697,7 @@ export default function TaskCard({
                 className="w-full rounded-xl bg-black py-4 font-semibold text-white transition hover:bg-[#24b11f80] flex items-center justify-center gap-2"
               >
                 <FaStudiovinari className="text-xl" />
-                <span>10</span>
+                <span>Stop</span>
               </button>
             </div>
           </div>
