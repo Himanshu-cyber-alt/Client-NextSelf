@@ -408,7 +408,7 @@ export default function TaskCard({
   const [isRunning, setIsRunning] = useState(false); // true ONLY on the device that owns the live timer/alarm
   const [showAlarmPopup, setShowAlarmPopup] = useState(false);
   const [status, setStatus] = useState(task.status); // "running"/"completed"/etc from the backend - true across ALL devices
-
+  const uuid = localStorage.getItem("uuid");
   // keep local status in sync if the task prop changes (e.g. Dashboard refetches)
   //
   // GUARD: if we've already marked this task "completed" locally (optimistic
@@ -534,22 +534,13 @@ export default function TaskCard({
         setShowAlarmPopup(true);
         clearMediaSession();
 
-        // ---------------------------------------------------------------
-        // IMPORTANT FIX: persist "completed" to the backend FIRST, and only
-        // THEN flip local status / notify the parent. This closes the race
-        // where onStatusChange() triggers a Dashboard refetch that reads
-        // the task as still "running" because updateTaskStatus() hadn't
-        // finished yet - which then flowed back down as a prop and
-        // overwrote our optimistic "completed" state.
-        // ---------------------------------------------------------------
+      
         try {
-          const uuid = localStorage.getItem("uuid");
           const title = task.title;
 
           await updateTaskStatus(task.id, "completed");
           await updateFocusStatus(uuid, false);
           await addHistory(uuid, title);
-          await addDiamond(uuid, 10);
         } catch (error) {
           console.log(error);
           // Even if bookkeeping (diamond/history/focus-status) fails, the
@@ -667,6 +658,7 @@ export default function TaskCard({
     cancelScheduledAlarm();
 
     setShowAlarmPopup(false);
+    await addDiamond(uuid, 10);
     await loadDiamond();
   };
 
