@@ -658,8 +658,11 @@ export default function TaskCard({
     cancelScheduledAlarm();
 
     setShowAlarmPopup(false);
-    await addDiamond(uuid, 10);
-    await loadDiamond();
+       
+    if(showAlarmPopup==false){
+       await addDiamond(uuid, 10);
+      await loadDiamond();
+    }
   };
 
   //----------------------------------------------------------------------------------------------------------------------------------
