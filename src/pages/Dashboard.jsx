@@ -185,24 +185,11 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-
-const loadTasks = async () => {
+  const loadTasks = async () => {
     try {
       const response = await getTasks(uuid);
-      const allIncoming = response.tasks;
+      const incoming = response.tasks;
 
-      // 1. Get exactly what "today" is as a clean string (e.g., "Fri Jul 31 2026")
-      const todayString = new Date().toDateString();
-
-      // 2. Filter the tasks: Only keep ones where 'created_at' matches today
-      const incoming = allIncoming.filter(task => {
-        // Convert the PostgreSQL timestamp into a readable JavaScript Date string
-        const taskDate = new Date(task.created_at).toDateString();
-        return taskDate === todayString;
-      });
-
-      // 3. Merge the FILTERED tasks with your local state to prevent lag
       setTasks((prev) => {
         if (prev.length !== incoming.length) return incoming;
 
@@ -226,7 +213,6 @@ const loadTasks = async () => {
     }
   };
 
-
   const loadDiamond = async () => {
     try {
       const response = await getDiamond(uuid);
@@ -240,7 +226,9 @@ const loadTasks = async () => {
     setTasks((prev) => [...prev, task]);
   };
 
-
+  // ---------------------------------------------------------------------------
+  // 2. GLOBAL TIMER LOGIC
+  // ---------------------------------------------------------------------------
   const runGlobalTimer = (startedAt, taskId) => {
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -275,8 +263,9 @@ const loadTasks = async () => {
     }, 1000);
   };
 
-
-
+  // ---------------------------------------------------------------------------
+  // 3. START TASK (Wrapped in useCallback for React.memo)
+  // ---------------------------------------------------------------------------
   const handleStartTask = useCallback(async (task) => {
     if (activeTaskId) return; // Prevent clicking if another task is already running locally
 
@@ -318,7 +307,9 @@ const loadTasks = async () => {
     }
   }, [activeTaskId, uuid]);
 
-
+  // ---------------------------------------------------------------------------
+  // 4. STOP & CLAIM (Wrapped in useCallback for React.memo)
+  // ---------------------------------------------------------------------------
   const handleStopAlarm = useCallback(async (task) => {
     // 1. Swap audio
     if (alarmAudio.current) {
@@ -343,7 +334,9 @@ const loadTasks = async () => {
     }
   }, [uuid]);
 
-
+  // ---------------------------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------------------------
   const anyTaskRunning = tasks.some((t) => t.status === "running") || activeTaskId !== null;
 
   return (

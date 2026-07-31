@@ -141,3 +141,20 @@ export const logoutUser = () => {
   // Optional: clear everything
   // localStorage.clear();
 };
+
+
+// Add this to the bottom of authService.js
+export const sendEmailAlert = async (email) => {
+  try {
+    const response = await axios.post(`${API}/send-alert`, {
+      email
+    });
+
+
+    console.log("Email ==> ",response);
+
+    return response.data;
+  } catch (error) {
+    console.error("Email API failed:", error);
+  }
+};

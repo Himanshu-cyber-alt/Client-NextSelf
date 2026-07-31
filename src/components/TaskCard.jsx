@@ -46,7 +46,7 @@ const TaskCard = memo(({
                 ) : isAnotherTaskActive ? (
                   <span className="flex items-center gap-2 text-[#1d1b18] font-medium">
                     <span className="h-2 w-2 rounded-full bg-red-700" />
-                    Wait
+                    Running Elsewhere
                   </span>
                 ) : (
                   <span className="text-black-700 font-medium">Ready to begin</span>
