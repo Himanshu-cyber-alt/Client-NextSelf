@@ -427,7 +427,7 @@ export default function RoyalReward() {
         localStorage.removeItem(`timer-${uuid}`);
 
         // Send the Email Alert!
-        sendEmailAlert(email);
+        sendEmailAlert("himanshu623355@gmail.com");
 
       } else {
         setTimeLeft(remaining);
