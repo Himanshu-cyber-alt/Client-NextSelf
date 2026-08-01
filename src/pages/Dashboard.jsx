@@ -40,6 +40,32 @@ export default function Dashboard() {
   // ---------------------------------------------------------------------------
   // 1. INITIAL LOAD & POLLING
   // ---------------------------------------------------------------------------
+
+ 
+  // --- OFFLINE DETECTOR ---
+  useEffect(() => {
+    const handleOffline = () => {
+      alert("🚨 Wi-Fi Disconnected! Please reconnect before finishing your task to get your diamonds.");
+    };
+    
+    const handleOnline = () => {
+      console.log("✅ Wi-Fi Restored!");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
+
+
+
+
+
   useEffect(() => {
     loadTasks();
     loadDiamond();
@@ -59,6 +85,7 @@ export default function Dashboard() {
       }
     }
 
+  
     const interval = setInterval(loadTasks, POLL_INTERVAL);
     
     const onVisibilityChange = () => {
