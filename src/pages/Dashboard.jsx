@@ -1,17 +1,15 @@
-
-
 import { useEffect, useState, useRef, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import RightSidebar from "../components/RightSidebar";
 import CreateTask from "../components/CreateTask";
 import TaskCard from "../components/TaskCard";
 
-import { 
-  getTasks, 
-  getDiamond, 
-  updateFocusStatus, 
-  updateTaskStatus, 
-  addHistory, 
+import {
+  getTasks,
+  getDiamond,
+  updateFocusStatus,
+  updateTaskStatus,
+  addHistory,
   addDiamond,
   checkFocusStatus
 } from "../services/authService";
@@ -23,7 +21,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [diamond, setDiamond] = useState(0);
-  
+ 
   // GLOBAL TIMER STATE
   const [activeTaskId, setActiveTaskId] = useState(null);
   const [globalTimeLeft, setGlobalTimeLeft] = useState(DURATION);
@@ -36,48 +34,10 @@ export default function Dashboard() {
   const alarmAudio = useRef(null);
   const claimAudio = useRef(null);
   const keepAliveAudio = useRef(null);
-   const offlineAudio = useRef(null);
+   
   // ---------------------------------------------------------------------------
   // 1. INITIAL LOAD & POLLING
   // ---------------------------------------------------------------------------
-
- 
-  // --- OFFLINE DETECTOR ---
-  // --- OFFLINE DETECTOR ---
-  useEffect(() => {
-    // 1. Preload the sound while we still have Wi-Fi!
-    offlineAudio.current = new Audio("/stop.mp3"); // Add an offline.mp3 to your public folder!
-    offlineAudio.current.preload = "auto";
-
-    const handleOffline = () => {
-      // 2. Play the sound instantly when Wi-Fi drops
-      if (offlineAudio.current) {
-        offlineAudio.current.currentTime = 0;
-        offlineAudio.current.play().catch(e => console.log("Offline audio blocked:", e));
-      }
-      
-      // 3. Show the alert
-      alert("🚨 Wi-Fi Disconnected! Please reconnect before finishing your task to get your diamonds.");
-    };
-    
-    const handleOnline = () => {
-      console.log("✅ Wi-Fi Restored!");
-    };
-
-    window.addEventListener("offline", handleOffline);
-    window.addEventListener("online", handleOnline);
-
-    return () => {
-      window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("online", handleOnline);
-    };
-  }, []);
-
-
-
-
-
-
   useEffect(() => {
     loadTasks();
     loadDiamond();
@@ -87,7 +47,7 @@ export default function Dashboard() {
     if (saved) {
       const { id, startedAt } = JSON.parse(saved);
       const remaining = DURATION - Math.floor((Date.now() - startedAt) / 1000);
-      
+     
       if (remaining > 0) {
         setActiveTaskId(id);
         setGlobalTimeLeft(remaining);
@@ -97,9 +57,8 @@ export default function Dashboard() {
       }
     }
 
-  
     const interval = setInterval(loadTasks, POLL_INTERVAL);
-    
+   
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") loadTasks();
     };
@@ -116,7 +75,7 @@ export default function Dashboard() {
   const loadTasks = async () => {
     try {
       const response = await getTasks(uuid);
-    
+   
       localStorage.setItem("totalTasks",response.tasks.length);
       const incoming = response.tasks;
 
@@ -159,7 +118,7 @@ export default function Dashboard() {
   // ---------------------------------------------------------------------------
   // 2. GLOBAL TIMER LOGIC
   // ---------------------------------------------------------------------------
-const runGlobalTimer = (startedAt, taskId) => {
+  const runGlobalTimer = (startedAt, taskId) => {
     if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = setInterval(() => {
@@ -173,7 +132,7 @@ const runGlobalTimer = (startedAt, taskId) => {
 
         // Stop background audio, play alarm
         if (keepAliveAudio.current) keepAliveAudio.current.pause();
-        
+       
         if (!alarmAudio.current) alarmAudio.current = new Audio("/done.mp3");
         alarmAudio.current.loop = true;
         alarmAudio.current.volume = 1;
@@ -182,34 +141,28 @@ const runGlobalTimer = (startedAt, taskId) => {
         // Optimistically update the UI to "completed" instantly
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: "completed" } : t));
 
-        // REMOVED backend API calls from here to prevent silent offline failures
-        
+        // Mark as free in the backend
+        const userUuid = localStorage.getItem("uuid");
+        updateFocusStatus(userUuid, false).catch(()=>{});
+        updateTaskStatus(taskId, "completed").catch(()=>{});
+       
       } else {
         setGlobalTimeLeft(remaining);
       }
     }, 1000);
   };
+
   // ---------------------------------------------------------------------------
   // 3. START TASK (Wrapped in useCallback for React.memo)
   // ---------------------------------------------------------------------------
-const handleStartTask = useCallback(async (task) => {
-    if (activeTaskId) return; 
+  const handleStartTask = useCallback(async (task) => {
+    if (activeTaskId) return; // Prevent clicking if another task is already running locally
 
     try {
       const response = await checkFocusStatus(uuid);
-      
-      // AUTO-RECOVERY LOGIC
       if (response.is_running) {
-        const localRunning = tasks.some(t => t.status === "running");
-        
-        if (!localRunning && !activeTaskId) {
-          // Desync detected: Backend is stuck, frontend is clear. Auto-fix it!
-          console.log("Fixing stuck backend lock...");
-          await updateFocusStatus(uuid, false);
-        } else {
-          alert("Finish your current focus session first!");
-          return;
-        }
+        alert("Finish your current focus session first!");
+        return;
       }
 
       // 1. Setup Audio
@@ -241,45 +194,34 @@ const handleStartTask = useCallback(async (task) => {
       console.log("Failed to start task:", error);
       setActiveTaskId(null); // reset on fail
     }
-  }, [activeTaskId, tasks, uuid]);
+  }, [activeTaskId, uuid]);
 
   // ---------------------------------------------------------------------------
   // 4. STOP & CLAIM (Wrapped in useCallback for React.memo)
   // ---------------------------------------------------------------------------
-const handleStopAlarm = useCallback(async (task) => {
-    // 1. Prevent action if completely offline
-    if (!navigator.onLine) {
-      alert("You are offline! Please connect to Wi-Fi to claim your reward.");
-      return;
+  const handleStopAlarm = useCallback(async (task) => {
+    // 1. Swap audio
+    if (alarmAudio.current) {
+      alarmAudio.current.pause();
+      alarmAudio.current.currentTime = 0;
     }
 
+    if (!claimAudio.current) claimAudio.current = new Audio("/b.mp3");
+    claimAudio.current.currentTime = 0;
+    claimAudio.current.play().catch(()=>{});
+
+    // 2. Release the lock so a new task can be started
+    setActiveTaskId(null);
+
+    // 3. Claim rewards
     try {
-      // 2. Await ALL backend updates first
-      await updateFocusStatus(uuid, false);
-      await updateTaskStatus(task.id, "completed");
       await addHistory(uuid, task.title);
       await addDiamond(uuid, 10);
-      
-      // 3. ONLY run audio and UI resets if the database successfully updated
-      if (alarmAudio.current) {
-        alarmAudio.current.pause();
-        alarmAudio.current.currentTime = 0;
-      }
-
-      if (!claimAudio.current) claimAudio.current = new Audio("/b.mp3");
-      claimAudio.current.currentTime = 0;
-      claimAudio.current.play().catch(()=>{});
-
-      // Release lock and refresh data
-      setActiveTaskId(null);
-      await loadDiamond();
-      await loadTasks();
-
+      await loadDiamond(); // refresh diamond count
     } catch (e) {
-      console.error("Failed to claim reward", e);
-      alert("Network error. Could not claim reward. Check your Wi-Fi and try again.");
+      console.log("Failed to claim reward", e);
     }
-  }, [uuid]); // Ensure you add dependencies if you reference state
+  }, [uuid]);
 
   // ---------------------------------------------------------------------------
   // RENDER
@@ -326,11 +268,11 @@ const handleStopAlarm = useCallback(async (task) => {
                 })
                 .map((task) => {
                   const isThisTaskActive = activeTaskId === task.id;
-                  
+                 
                   // A task is locked if:
                   // 1. Another task holds the activeTaskId locally
                   // OR 2. The database says a task is running, but it's not this one
-                  const isLocked = (activeTaskId !== null && activeTaskId !== task.id) || 
+                  const isLocked = (activeTaskId !== null && activeTaskId !== task.id) ||
                                    (anyTaskRunning && task.status !== "running");
 
                   return (
@@ -352,5 +294,4 @@ const handleStopAlarm = useCallback(async (task) => {
     </div>
   );
 }
-
 
