@@ -137,6 +137,7 @@ export const logoutUser = () => {
   // If you store any other data
   localStorage.removeItem("user");
   localStorage.removeItem("email");
+  localStorage.removeItem("totalTasks");
 
   // Optional: clear everything
   // localStorage.clear();
@@ -144,16 +145,14 @@ export const logoutUser = () => {
 
 
 // Add this to the bottom of authService.js
-export const sendEmailAlert = async (email) => {
-
-  console.log(email);
-  
+export const sendEmailAlert = async (email, studiedDuration) => {
   try {
     const response = await axios.post(`${API}/send-alert`, {
-      email
+      email,
+      studiedDuration, // Passing the formatted string to the backend
     });
-   console.log("Email ==> ",response);
 
+    console.log("Email sent successfully ==>", response.data);
     return response.data;
   } catch (error) {
     console.error("Email API failed:", error);

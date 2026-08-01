@@ -1,7 +1,6 @@
 
 
 
-
 import React, { useState, useRef, useEffect } from "react";
 import { getDiamond, removeDiamond, addReward, removeReward, sendEmailAlert } from "../services/authService";
 import { useNavigate } from "react-router-dom";
@@ -118,8 +117,24 @@ export default function RoyalReward() {
         setTimeLeft(0);
         localStorage.removeItem(`timer-${uuid}`);
 
-        // Send the Email Alert!
-        sendEmailAlert("himanshu623355@gmail.com");
+        const totalTasks = localStorage.getItem("totalTasks") || 0;
+
+// 2. Calculate total minutes (each task is 45 minutes)
+const totalMinutes = totalTasks * 45;
+const hours = Math.floor(totalMinutes / 60);
+const mins = totalMinutes % 60;
+
+// 3. Format it into a clean string (e.g., "1 hr 30 mins" or "45 minutes")
+let studiedDuration = "";
+if (hours > 0) {
+  studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
+} else {
+  studiedDuration = `${mins} minutes`;
+}
+
+// 4. Send the Email Alert!
+sendEmailAlert("himanshu623355@gmail.com", studiedDuration);
+       
 
       } else {
         setTimeLeft(remaining);
@@ -266,3 +281,4 @@ export default function RoyalReward() {
     </div>
   );
 }
+
