@@ -14,6 +14,7 @@ import {
   checkFocusStatus
 } from "../services/authService";
 
+
 const POLL_INTERVAL = 5000;
 const DURATION = 45 * 60; // 6 seconds for testing. Change to 45 * 60 for production!
 
@@ -25,6 +26,7 @@ export default function Dashboard() {
   // GLOBAL TIMER STATE
   const [activeTaskId, setActiveTaskId] = useState(null);
   const [globalTimeLeft, setGlobalTimeLeft] = useState(DURATION);
+
 
   const uuid = localStorage.getItem("uuid");
   const timerRef = useRef(null);

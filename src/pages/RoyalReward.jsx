@@ -155,8 +155,8 @@ sendEmailAlert("himanshu623355@gmail.com", studiedDuration);
       const startedAt = Date.now();
       
       // Using the actual reward minutes for the countdown (e.g., 30 * 60 = 1800 seconds)
-      //  const totalSeconds = rewardMinutes * 60; 
-      const totalSeconds = 5;
+       const totalSeconds = rewardMinutes * 60; 
+     
 
 
      
