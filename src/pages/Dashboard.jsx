@@ -36,15 +36,27 @@ export default function Dashboard() {
   const alarmAudio = useRef(null);
   const claimAudio = useRef(null);
   const keepAliveAudio = useRef(null);
-   
+   const offlineAudio = useRef(null);
   // ---------------------------------------------------------------------------
   // 1. INITIAL LOAD & POLLING
   // ---------------------------------------------------------------------------
 
  
   // --- OFFLINE DETECTOR ---
+  // --- OFFLINE DETECTOR ---
   useEffect(() => {
+    // 1. Preload the sound while we still have Wi-Fi!
+    offlineAudio.current = new Audio("/stop.mp3"); // Add an offline.mp3 to your public folder!
+    offlineAudio.current.preload = "auto";
+
     const handleOffline = () => {
+      // 2. Play the sound instantly when Wi-Fi drops
+      if (offlineAudio.current) {
+        offlineAudio.current.currentTime = 0;
+        offlineAudio.current.play().catch(e => console.log("Offline audio blocked:", e));
+      }
+      
+      // 3. Show the alert
       alert("🚨 Wi-Fi Disconnected! Please reconnect before finishing your task to get your diamonds.");
     };
     
