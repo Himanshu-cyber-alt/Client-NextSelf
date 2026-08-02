@@ -6,7 +6,8 @@ import {
   FaCog,
   FaSignOutAlt,
   FaUserCircle,
-   FaClock
+   FaClock,
+   FaFlag 
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../services/authService";
@@ -90,7 +91,42 @@ export default function RightSidebar({ isOpen, onClose }) {
             <FaHistory className="text-black-400 text-xl text-white" />
             <span className="font-medium text-white">History</span>
           </button>
+
+
+
+
+
+ <button 
+          onClick={() => {
+    navigate("/growth");
+    onClose();
+  }}
+
+          className="w-full flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-zinc-800 transition">
+            <FaFlag  className="text-black-400 text-xl text-white" />
+            <span className="font-medium text-white">Growth</span>
+          </button>
+
+
+
+
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
         {/* Logout */}
         <div className="absolute bottom-0 w-full p-5 border-t border-zinc-700">

@@ -7,6 +7,7 @@ import RoyalReward from "./pages/RoyalReward";
 import History from "./pages/History";
 import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Growth from "./pages/Growth.jsx";
 
 function App() {
   return (
@@ -44,6 +45,18 @@ function App() {
         </ProtectedRoute>
       }
 />
+
+
+    <Route path="/growth"
+      element={
+
+        <ProtectedRoute>
+          <Growth/>
+        </ProtectedRoute>
+      }
+
+      />
+
 
      
 

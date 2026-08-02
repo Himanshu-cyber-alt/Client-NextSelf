@@ -4,6 +4,7 @@ import axios from "axios";
 const API="https://server-nextself.onrender.com/api/auth";
 
 
+
 export const googleLogin = async (idToken) => {
 
 
@@ -17,10 +18,10 @@ export const googleLogin = async (idToken) => {
 
 export const createTask = async (taskData) => {
 
-
+  console.log(taskData)
   const token = localStorage.getItem("token");
 
-
+  console.log(token);
 
 
   const response = await axios.post(`${API}/create`, taskData, {
@@ -29,19 +30,19 @@ export const createTask = async (taskData) => {
     },
   });
 
-
+  console.log(response)
 
   return response.data;
 };
 
 export const getTasks = async (uuid) => {
   
-  
+  console.log("uuid " ,uuid)
   const response = await axios.get(
     `${API}/get/${uuid}`
   );
 
- 
+  console.log("test 1",response.data)
 
   return response.data;
 };
@@ -82,7 +83,7 @@ export const removeDiamond = async (uuid)=>{
  
   const result = await axios.post(`${API}/remove-diamond/${uuid}`);
 
- 
+  console.log("remove ", result)
    return result.data;
 }
 
@@ -117,7 +118,7 @@ export const addHistory = async (uuid,title)=>{
   
   const result = await axios.post(`${API}/add-history`,{uuid,title})
 
-
+  console.log("addhistory",result);
 
   return result.data;
 
@@ -156,4 +157,32 @@ export const sendEmailAlert = async (email, studiedDuration) => {
   } catch (error) {
     console.error("Email API failed:", error);
   }
+};
+
+
+
+
+// --- GROWTH TOPICS ---
+export const getGrowthTopics = async (uuid) => {
+  const response = await axios.get(`${API}/growth/${uuid}`);
+  return response.data;
+};
+
+export const addGrowthTopic = async (uuid, topic) => {
+
+  console.log(uuid)
+  const response = await axios.post(`${API}/growth/add`, { uuid, topic });
+
+  return response.data;
+};
+
+export const deleteGrowthTopic = async (id) => {
+  const response = await axios.delete(`${API}/growth/${id}`);
+  return response.data;
+};
+
+// Also don't forget to add this one if you haven't yet, so Dashboard can update time!
+export const updateGrowthTime = async (uuid, taskTitle) => {
+  const response = await axios.post(`${API}/growth/update-time`, { uuid, taskTitle });
+  return response.data;
 };

@@ -11,9 +11,9 @@ import {
   updateTaskStatus,
   addHistory,
   addDiamond,
-  checkFocusStatus
+  checkFocusStatus,
+  updateGrowthTime
 } from "../services/authService";
-
 
 const POLL_INTERVAL = 5000;
 const DURATION = 45 * 60; // 6 seconds for testing. Change to 45 * 60 for production!
@@ -26,7 +26,6 @@ export default function Dashboard() {
   // GLOBAL TIMER STATE
   const [activeTaskId, setActiveTaskId] = useState(null);
   const [globalTimeLeft, setGlobalTimeLeft] = useState(DURATION);
-
 
   const uuid = localStorage.getItem("uuid");
   const timerRef = useRef(null);
@@ -220,6 +219,7 @@ export default function Dashboard() {
       await addHistory(uuid, task.title);
       await addDiamond(uuid, 10);
       await loadDiamond(); // refresh diamond count
+      await updateGrowthTime(uuid, task.title);
     } catch (e) {
       console.log("Failed to claim reward", e);
     }
