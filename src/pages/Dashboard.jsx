@@ -19,6 +19,7 @@ const POLL_INTERVAL = 5000;
 const DURATION = 45 * 60; // 6 seconds for testing. Change to 45 * 60 for production!
 
 export default function Dashboard() {
+    console.log("Dashboard is rendering");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [diamond, setDiamond] = useState(0);
@@ -58,6 +59,8 @@ export default function Dashboard() {
       }
     }
 
+  
+
     const interval = setInterval(loadTasks, POLL_INTERVAL);
    
     const onVisibilityChange = () => {
@@ -74,13 +77,19 @@ export default function Dashboard() {
   }, []);
 
   const loadTasks = async () => {
+
     try {
-   
-     const response = await getTasks(uuid);
+  const response = await getTasks(uuid);
       const incoming = response.tasks;
 
+
       const completedTasksToday = incoming.filter(task => task.status === "completed").length;
+
+    
+
       localStorage.setItem("totalTasks", completedTasksToday);
+
+
 
       setTasks((prev) => {
         if (prev.length !== incoming.length) return incoming;
@@ -131,7 +140,6 @@ export default function Dashboard() {
       if (remaining <= 0) {
         clearInterval(timerRef.current);
         setGlobalTimeLeft(0);
-        localStorage.removeItem("activeTask");
 
         // Stop background audio, play alarm
         if (keepAliveAudio.current) keepAliveAudio.current.pause();
@@ -215,6 +223,7 @@ export default function Dashboard() {
 
     // 2. Release the lock so a new task can be started
     setActiveTaskId(null);
+    localStorage.removeItem("activeTask");
 
     // 3. Claim rewards
     try {
