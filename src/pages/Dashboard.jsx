@@ -75,10 +75,12 @@ export default function Dashboard() {
 
   const loadTasks = async () => {
     try {
-      const response = await getTasks(uuid);
    
-      localStorage.setItem("totalTasks",response.tasks.length);
+     const response = await getTasks(uuid);
       const incoming = response.tasks;
+
+      const completedTasksToday = incoming.filter(task => task.status === "completed").length;
+      localStorage.setItem("totalTasks", completedTasksToday);
 
       setTasks((prev) => {
         if (prev.length !== incoming.length) return incoming;
