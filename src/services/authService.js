@@ -18,10 +18,10 @@ export const googleLogin = async (idToken) => {
 
 export const createTask = async (taskData) => {
 
-  console.log(taskData)
+ 
   const token = localStorage.getItem("token");
 
-  console.log(token);
+
 
 
   const response = await axios.post(`${API}/create`, taskData, {
@@ -30,19 +30,19 @@ export const createTask = async (taskData) => {
     },
   });
 
-  console.log(response)
+
 
   return response.data;
 };
 
 export const getTasks = async (uuid) => {
   
-  console.log("uuid " ,uuid)
+ 
   const response = await axios.get(
     `${API}/get/${uuid}`
   );
 
-  console.log("test 1",response.data)
+
 
   return response.data;
 };

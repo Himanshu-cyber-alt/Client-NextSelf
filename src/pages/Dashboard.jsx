@@ -79,6 +79,7 @@ export default function Dashboard() {
   const loadTasks = async () => {
 
     try {
+      
   const response = await getTasks(uuid);
       const incoming = response.tasks;
 
