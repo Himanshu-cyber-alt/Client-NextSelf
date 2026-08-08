@@ -1,3 +1,4 @@
+
 // import { useEffect, useState } from "react";
 // import Navbar from "../components/Navbar";
 // import RightSidebar from "../components/RightSidebar";
@@ -37,9 +38,6 @@
 //     e.preventDefault();
 //     if (!newTopic.trim()) return;
 
-    
-    
-
 //     try {
 //       const response = await addGrowthTopic(uuid, newTopic.trim());
 
@@ -74,11 +72,20 @@
 //     return `${hours}h ${minutes}m`;
 //   };
 
+//   // Helper to determine text color based on total minutes
+//   const getTimeColorClass = (totalMinutes) => {
+//     if (!totalMinutes || totalMinutes === 0) {
+//       return "text-red-500"; // 0 hours
+//     } else if (totalMinutes < 600) {
+//       return "text-yellow-450 text-yellow-400"; // Between >0 and <10 hours
+//     } else {
+//       return "text-[#27dc03]"; // 10 hours or more
+//     }
+//   };
 
-
-// return (
+//   return (
 //     <div className="min-h-screen relative font-sans">
-     
+      
 //       <RightSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
 //       {/* Cinematic Background */}
@@ -86,13 +93,13 @@
 //         className="fixed inset-0 -z-10 bg-cover bg-center"
 //         style={{ backgroundImage: "url('/home.jpg')" }}
 //       >
-//         <div className="absolute inset-0 bg-black/60" /> {/* Darker overlay for readability */}
+//         <div className="absolute inset-0 bg-black/60" />
 //       </div>
 
 //       <div className="min-h-screen w-full flex justify-center py-10 px-4">
 //         <div className="w-full max-w-4xl">
           
-//           {/* --- UPDATED HOME BUTTON USING USENAVIGATE --- */}
+//           {/* Back to Home Button */}
 //           <div className="mb-6">
 //             <button 
 //               onClick={() => navigate("/home")} 
@@ -104,7 +111,6 @@
 //               Back to Home
 //             </button>
 //           </div>
-//           {/* --------------------------------------------- */}
 
 //           <div className="mb-8">
 //             <h1 className="text-4xl font-bold text-white mb-2" style={{ fontFamily: 'Georgia, serif' }}>
@@ -136,7 +142,7 @@
 //             </form>
 //           </div>
 
-//           {/* Topics List with Horizontal Lines */}
+//           {/* Topics List */}
 //           {isLoading ? (
 //             <div className="text-[#dddfdd] text-center py-10 text-xl animate-pulse">Loading mastery stats...</div>
 //           ) : topics.length === 0 ? (
@@ -145,7 +151,7 @@
 //               <p className="text-[#8892b0] text-sm mt-2">Start typing above to track your first skill.</p>
 //             </div>
 //           ) : (
-//             <div className="flex flex-col border-t border-[#8892b0]/40 mt-4  rounded-xl">
+//             <div className="flex flex-col border-t border-[#8892b0]/40 mt-4 rounded-xl">
 //               {topics.map((topic) => (
 //                 <div 
 //                   key={topic.id} 
@@ -158,18 +164,16 @@
                   
 //                   {/* Right Side: Time and Delete Button */}
 //                   <div className="flex items-center gap-8">
-                   
-//                         <h2 className="className=text-xl text-[#27dc03] font-mono text-2xl">
+//                     {/* Dynamic Color Based on Time */}
+//                     <h2 className={`font-mono text-2xl ${getTimeColorClass(topic.time_minutes)}`}>
 //                       {formatTime(topic.time_minutes)}
-//                       </h2>
-                  
+//                     </h2>
                     
 //                     <button
 //                       onClick={() => handleDelete(topic.id)}
 //                       className="text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 -mr-2"
 //                       title="Delete Topic"
 //                     >
-//                       {/* SVG Trash Icon */}
 //                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 //                       </svg>
@@ -184,15 +188,17 @@
 //       </div>
 //     </div>
 //   );
-  
-
 // }
+
 
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import RightSidebar from "../components/RightSidebar";
 import { getGrowthTopics, addGrowthTopic, deleteGrowthTopic } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+
+const TARGET_HOURS = 20;
+const TARGET_MINUTES = TARGET_HOURS * 60; // 1200
 
 export default function Growth() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -261,20 +267,41 @@ export default function Growth() {
     return `${hours}h ${minutes}m`;
   };
 
-  // Helper to determine text color based on total minutes
+  // Single source of truth for the red/yellow/green tier, driven by hours studied.
+  // 0h-5h -> red, 5h-14h -> yellow, 15h+ -> green
+  const getProgressTier = (totalMinutes) => {
+    const hours = (totalMinutes || 0) / 60;
+    if (hours < 5) return "red";
+    if (hours < 15) return "yellow";
+    return "green";
+  };
+
+  // Text color for the time display, matched to the same tier
   const getTimeColorClass = (totalMinutes) => {
-    if (!totalMinutes || totalMinutes === 0) {
-      return "text-red-500"; // 0 hours
-    } else if (totalMinutes < 600) {
-      return "text-yellow-450 text-yellow-400"; // Between >0 and <10 hours
-    } else {
-      return "text-[#27dc03]"; // 10 hours or more
-    }
+    const tier = getProgressTier(totalMinutes);
+    if (tier === "red") return "text-red-500";
+    if (tier === "yellow") return "text-yellow-400";
+    return "text-[#27dc03]";
+  };
+
+  // Bar fill color, matched to the same tier
+  const getBarColorClass = (totalMinutes) => {
+    const tier = getProgressTier(totalMinutes);
+    if (tier === "red") return "bg-red-500";
+    if (tier === "yellow") return "bg-yellow-400";
+    return "bg-[#27dc03]";
+  };
+
+  // Helper: 0-100 progress % toward the 20h target
+  const getProgressPercent = (totalMinutes) => {
+    if (!totalMinutes) return 0;
+    const pct = (totalMinutes / TARGET_MINUTES) * 100;
+    return Math.min(pct, 100); // cap at 100%
   };
 
   return (
     <div className="min-h-screen relative font-sans">
-      
+
       <RightSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Cinematic Background */}
@@ -287,11 +314,11 @@ export default function Growth() {
 
       <div className="min-h-screen w-full flex justify-center py-10 px-4">
         <div className="w-full max-w-4xl">
-          
+
           {/* Back to Home Button */}
           <div className="mb-6">
-            <button 
-              onClick={() => navigate("/home")} 
+            <button
+              onClick={() => navigate("/home")}
               className="inline-flex items-center text-[#c5a059] hover:text-white transition-colors font-semibold tracking-wide bg-transparent border-none cursor-pointer p-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -341,35 +368,51 @@ export default function Growth() {
             </div>
           ) : (
             <div className="flex flex-col border-t border-[#8892b0]/40 mt-4 rounded-xl">
-              {topics.map((topic) => (
-                <div 
-                  key={topic.id} 
-                  className="flex items-center rounded-xl justify-between py-6 px-4 border-b border-[#8892b0]/40 group hover:bg-[#1f2833]/60 transition-colors bg-[#0b0c10]/60 backdrop-blur-sm"
-                >
-                  {/* Left Side: Topic Name */}
-                  <h3 className="text-xl font-bold text-white uppercase tracking-wider mb-0">
-                    {topic.topic}
-                  </h3>
-                  
-                  {/* Right Side: Time and Delete Button */}
-                  <div className="flex items-center gap-8">
-                    {/* Dynamic Color Based on Time */}
-                    <h2 className={`font-mono text-2xl ${getTimeColorClass(topic.time_minutes)}`}>
-                      {formatTime(topic.time_minutes)}
-                    </h2>
-                    
-                    <button
-                      onClick={() => handleDelete(topic.id)}
-                      className="text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 -mr-2"
-                      title="Delete Topic"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+              {topics.map((topic) => {
+                const percent = getProgressPercent(topic.time_minutes);
+
+                return (
+                  <div
+                    key={topic.id}
+                    className="flex flex-col rounded-xl py-6 px-4 border-b border-[#8892b0]/40 group hover:bg-[#1f2833]/60 transition-colors bg-[#0b0c10]/60 backdrop-blur-sm"
+                  >
+                    {/* Top row: Topic Name + Time + Delete */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xl font-bold text-white uppercase tracking-wider mb-0">
+                        {topic.topic}
+                      </h3>
+
+                      <div className="flex items-center gap-8">
+                        {/* Dynamic color based on time */}
+                        <h2 className={`font-mono text-2xl ${getTimeColorClass(topic.time_minutes)}`}>
+                          {formatTime(topic.time_minutes)}
+                        </h2>
+
+                        <button
+                          onClick={() => handleDelete(topic.id)}
+                          className="text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 -mr-2"
+                          title="Delete Topic"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Progress bar row - same red/yellow/green tier as the time text */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-3 bg-[#1f2833] rounded-full overflow-hidden border border-[#8892b0]/20">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ease-out ${getBarColorClass(topic.time_minutes)}`}
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                   
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
