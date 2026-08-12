@@ -637,7 +637,7 @@ export default function Dashboard() {
         </div>
 
         {/* Calendar column - far right, vertical */}
-        <div className=" sticky top-60 h-fit">
+        <div className=" hidden lg:block sticky top-60 h-fit">
           <Calendar />
         </div>
       </div>
