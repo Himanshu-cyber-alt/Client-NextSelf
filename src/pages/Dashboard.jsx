@@ -376,7 +376,7 @@ export default function Dashboard() {
   // ---------------------------------------------------------------------------
   const wallpaper = useMemo(() => {
     const dayOfMonth = new Date().getDate(); // 1–31
-    const index = ((dayOfMonth - 1) % 8) + 1; // cycles 1 to 8
+    const index = ((dayOfMonth - 1) % 16) + 1; // cycles 1 to 8
     return `/${index}.jpg`; // change extension here if your files are .png/.jpeg
   }, []);
 
