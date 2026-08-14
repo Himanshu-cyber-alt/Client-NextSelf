@@ -261,7 +261,7 @@ return (
     <RightSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
     <div
-      className="fixed inset-0 -z-10 bg-black"
+      className="fixed inset-0 -z-10 bg-gray-600"
     >
       <div className="absolute inset-0 bg-black/30" />
     </div>
