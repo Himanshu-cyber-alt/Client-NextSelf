@@ -1,3 +1,5 @@
+
+
 // // components/Calendar.jsx
 // import { useEffect, useState, useMemo } from "react";
 // import { getHistory } from "../services/authService";
@@ -8,7 +10,7 @@
 //   if (count === 0) return "bg-red-600/80"; // no activity that day
 //   const hours = count * 0.75;
 //   if (hours < 4) return "bg-red-600/80";
-//   if (hours <= 6) return "bg-green-700/60"; // light green
+//   if (hours <= 8) return "bg-green-700/60"; // light green
 //   return "bg-green-400"; // proper green
 // }
 
@@ -86,14 +88,14 @@
 
 
 //   return (
-//     <div className="bg-black/40 rounded-xl p-6 w-fit">
-//       <div className="grid grid-cols-2 gap-4">
+//     <div className="bg-black/50 rounded-xl p-15 w-fit">
+//       <div className="grid grid-cols-2 gap-4  ">
 //         {months.map(({ year, month }) => {
 //           const weeks = buildMonthGrid(year, month);
 //           return (
 //             <div
 //               key={`${year}-${month}`}
-//               className="border border-white/10 rounded-lg p-4 w-56 flex flex-col items-start"
+//               className="border border-white/15 rounded-lg p-4 w-54 flex flex-col items-start"
 //             >
 //               <span className="text-sm text-white/70 mb-2">
 //                 {MONTH_NAMES[month]}{month === 0 ? ` '${String(year).slice(2)}` : ""}
@@ -143,10 +145,11 @@ import { useEffect, useState, useMemo } from "react";
 import { getHistory } from "../services/authService";
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
- 
+const TASK_MINUTES = 50; // must match backend/dashboard session duration
+
 function getColor(count) {
   if (count === 0) return "bg-red-600/80"; // no activity that day
-  const hours = count * 0.75;
+  const hours = count * (TASK_MINUTES / 60);
   if (hours < 4) return "bg-red-600/80";
   if (hours <= 8) return "bg-green-700/60"; // light green
   return "bg-green-400"; // proper green
@@ -222,8 +225,7 @@ export default function Calendar() {
   const todayKey = toKey(new Date());
 
   const todayCount = countsByDay[todayKey] || 0;
-const todayHours = (todayCount * 0.75).toFixed(1);
-
+  const todayHours = (todayCount * (TASK_MINUTES / 60)).toFixed(1);
 
   return (
     <div className="bg-black/50 rounded-xl p-15 w-fit">
@@ -257,7 +259,7 @@ const todayHours = (todayCount * 0.75).toFixed(1);
                       return (
                         <div
                           key={di}
-                          title={`${key}: ${count} task${count === 1 ? "" : "s"} (${((count * 45) / 60).toFixed(1)}h)`}
+                          title={`${key}: ${count} task${count === 1 ? "" : "s"} (${((count * TASK_MINUTES) / 60).toFixed(1)}h)`}
                           className={`w-4 h-4 rounded-sm ${colorClass}`}
                         />
                       );

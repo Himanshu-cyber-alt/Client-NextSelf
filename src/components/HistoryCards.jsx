@@ -7,7 +7,7 @@ export default function HistoryCards({ history }) {
 return (
   <div className="max-w-2xl mx-auto space-y-8">
     {sorted.map((day) => {
-      const totalMinutes = day.tasks.length * 45;
+      const totalMinutes = day.tasks.length * 50;
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
 
