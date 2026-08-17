@@ -150,7 +150,7 @@ const TASK_MINUTES = 50; // must match backend/dashboard session duration
 function getColor(count) {
   if (count === 0) return "bg-red-600/80"; // no activity that day
   const hours = count * (TASK_MINUTES / 60);
-  if (hours < 4) return "bg-red-600/80";
+  if (hours < 6) return "bg-red-600/80";
   if (hours <= 8) return "bg-green-700/60"; // light green
   return "bg-green-400"; // proper green
 }
