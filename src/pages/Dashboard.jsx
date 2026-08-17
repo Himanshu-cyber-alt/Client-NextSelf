@@ -21,7 +21,10 @@ import {
 } from "../services/authService";
 
 const POLL_INTERVAL = 5000;
-const DURATION = 45 * 60; 
+const DURATION = 50 * 60;
+
+
+
 
 export default function Dashboard() {
     console.log("Dashboard is rendering");

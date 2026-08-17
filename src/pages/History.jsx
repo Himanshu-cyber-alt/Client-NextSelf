@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getHistory } from "../services/authService";
 import HistoryCards from "../components/HistoryCards.jsx";
 
+
+
 export default function History() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
