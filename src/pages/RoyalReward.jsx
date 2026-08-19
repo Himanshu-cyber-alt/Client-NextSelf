@@ -12,6 +12,8 @@ export default function RoyalReward() {
   const [selectedReward, setSelectedReward] = useState(null);
   const [showReward, setShowReward] = useState(false);
 
+
+  45
   // --- Kept Only the Button Sounds ---
   const claimTime = useRef(new Audio("/c.mp3"));
   const spin = useRef(new Audio("/d.mp3"));
@@ -119,12 +121,12 @@ export default function RoyalReward() {
 
         const totalTasks = localStorage.getItem("totalTasks") || 0;
 
-// 2. Calculate total minutes (each task is 45 minutes)
-const totalMinutes = totalTasks * 45;
+// 2. Calculate total minutes (each task is 50 minutes)
+const totalMinutes = totalTasks * 50;
 const hours = Math.floor(totalMinutes / 60);
 const mins = totalMinutes % 60;
 
-// 3. Format it into a clean string (e.g., "1 hr 30 mins" or "45 minutes")
+// 3. Format it into a clean string (e.g., "1 hr 30 mins" or "50 minutes")
 let studiedDuration = "";
 if (hours > 0) {
   studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
