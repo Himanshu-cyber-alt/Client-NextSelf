@@ -185,7 +185,11 @@
 
       try {
 
-      
+          const response = await checkFocusStatus(uuid);
+        if (response.is_running) {
+          alert("Finish your current focus session first!");
+          return;
+        }
 
     
         // 1. Setup Audio
