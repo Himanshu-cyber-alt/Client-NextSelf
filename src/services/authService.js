@@ -168,13 +168,28 @@ export const getGrowthTopics = async (uuid) => {
   return response.data;
 };
 
-export const addGrowthTopic = async (uuid, topic) => {
+// export const addGrowthTopic = async (uuid, topic) => {
 
+//   console.log(uuid)
+//   const response = await axios.post(`${API}/growth/add`, { uuid, topic });
+
+//   return response.data;
+// };
+
+
+
+export const addGrowthTopic = async (uuid, topic, targetHours) => {
   console.log(uuid)
-  const response = await axios.post(`${API}/growth/add`, { uuid, topic });
-
+  const response = await axios.post(`${API}/growth/add`, { uuid, topic, targetHours });
   return response.data;
 };
+
+export const updateGrowthTopic = async (id, targetHours) => {
+  const response = await axios.patch(`${API}/growth/${id}/target`, { targetHours });
+  return response.data;
+};
+
+
 
 export const deleteGrowthTopic = async (id) => {
   const response = await axios.delete(`${API}/growth/${id}`);
