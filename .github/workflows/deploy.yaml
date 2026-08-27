@@ -37,4 +37,7 @@ jobs:
 
       - name: Deploy to S3
         run: aws sts get-caller-identity
+<<<<<<< HEAD
 
+=======
+>>>>>>> f98ad9e (fix)
