@@ -36,7 +36,7 @@ return (
   <div className="w-full min-h-screen bg-black flex items-center justify-center">
     <div className="flex flex-col items-center text-center px-4">
       <h1 className="text-white text-5xl sm:text-6xl font-bold mb-4">
-        NextSelf
+        Hemant
       </h1>
 
       <p className="text-gray-400 mb-8">
