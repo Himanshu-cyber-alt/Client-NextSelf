@@ -1,9 +1,6 @@
 import {
   FaTimes,
-  FaGem,
   FaHistory,
-  FaGift,
-  FaCog,
   FaSignOutAlt,
   FaUserCircle,
    FaClock,
