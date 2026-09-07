@@ -122,11 +122,11 @@ export default function RoyalReward() {
         const totalTasks = localStorage.getItem("totalTasks") || 0;
 
 // 2. Calculate total minutes (each task is 50 minutes)
-const totalMinutes = totalTasks * 50;
+const totalMinutes = totalTasks * 60;
 const hours = Math.floor(totalMinutes / 60);
 const mins = totalMinutes % 60;
 
-// 3. Format it into a clean string (e.g., "1 hr 30 mins" or "50 minutes")
+// 3. Format it into a clean string (e.g., "1 hr 30 mins" or "60 minutes")
 let studiedDuration = "";
 if (hours > 0) {
   studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;

@@ -145,7 +145,7 @@ import { useEffect, useState, useMemo } from "react";
 import { getHistory } from "../services/authService";
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const TASK_MINUTES = 50; // must match backend/dashboard session duration
+const TASK_MINUTES = 60; // must match backend/dashboard session duration
 
 function getColor(count) {
   if (count === 0) return "bg-red-600/80"; // no activity that day

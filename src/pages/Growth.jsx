@@ -10,7 +10,7 @@ import {
 } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
-const DEFAULT_TARGET_HOURS = 5;
+const DEFAULT_TARGET_HOURS = 20;
 
 export default function Growth() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
