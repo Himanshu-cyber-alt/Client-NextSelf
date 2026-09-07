@@ -154,7 +154,7 @@ const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"
 //
 // Sorted oldest -> newest. `from` = first date (inclusive) this length applied.
 const SESSION_LENGTH_HISTORY = [
-  { from: new Date(2000, 0, 1), minutes: 45 }, // original 45-min sessions
+  { from: new Date(2000, 0, 1), minutes: 50 }, // original 45-min sessions
   { from: new Date(2026, 8, 7), minutes: 60 }, // <-- SET THIS to the real date you switched to 60-min sessions
 ];
 
