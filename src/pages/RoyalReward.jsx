@@ -13,7 +13,7 @@ export default function RoyalReward() {
   const [showReward, setShowReward] = useState(false);
 
 
-  45
+  
   // --- Kept Only the Button Sounds ---
   const claimTime = useRef(new Audio("/c.mp3"));
   const spin = useRef(new Audio("/d.mp3"));
@@ -23,7 +23,7 @@ export default function RoyalReward() {
 
   const navigate = useNavigate();
   const uuid = localStorage.getItem("uuid");
-  const SPIN_COST = 20;
+  const SPIN_COST = 10;
 
   const videoRef = useRef(null);
   const intervalRef = useRef(null);
