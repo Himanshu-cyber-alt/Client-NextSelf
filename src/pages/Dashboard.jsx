@@ -222,10 +222,7 @@ export default function Dashboard() {
       try {
         const response = await checkFocusStatus(uuid);
 
-        if (response.is_running) {
-          alert("Finish your current focus session first!");
-          return;
-        }
+    
 
         // 1. Setup Audio
         if (!startAudio.current) {
@@ -265,7 +262,9 @@ export default function Dashboard() {
 
         await updateFocusStatus(uuid, true);
         await updateTaskStatus(task.id, "running");
+
       } catch (error) {
+
         console.log("Failed to start task:", error);
         setActiveTaskId(null);
         localStorage.removeItem("activeTask");
