@@ -1,7 +1,7 @@
 
 
 
-// import { useState, useRef, useEffect } from "react";
+// import React, { useState, useRef, useEffect } from "react";
 // import { getDiamond, removeDiamond, addReward, removeReward, sendEmailAlert } from "../services/authService";
 // import { useNavigate } from "react-router-dom";
 // import { FaStudiovinari } from "react-icons/fa";
@@ -12,8 +12,6 @@
 //   const [selectedReward, setSelectedReward] = useState(null);
 //   const [showReward, setShowReward] = useState(false);
 
-
-  
 //   // --- Kept Only the Button Sounds ---
 //   const claimTime = useRef(new Audio("/c.mp3"));
 //   const spin = useRef(new Audio("/d.mp3"));
@@ -28,13 +26,14 @@
 //   const videoRef = useRef(null);
 //   const intervalRef = useRef(null);
 //   const spinningRef = useRef(false);
-  
-//   const  email = localStorage.getItem("email");
 
+//   const email = localStorage.getItem("email");
+
+//   // Equal odds now — each duration has the same 1-in-3 chance
 //   const REWARDS = [
-//     { duration: 30, rarity: "common", chance: 50, video: "/30.mp4" },
-//     { duration: 45, rarity: "rare", chance: 30, video: "/45.mp4" },
-//     { duration: 60, rarity: "legendary", chance: 20, video: "/60.mp4" },
+//     { duration: 30, video: "/30.mp4" },
+//     { duration: 45, video: "/45.mp4" },
+//     { duration: 60, video: "/60.mp4" },
 //   ];
 
 //   // ---- Cleanup Timer on Unmount ----
@@ -60,13 +59,8 @@
 //   }, []);
 
 //   function pickReward(pool) {
-//     const total = pool.reduce((sum, item) => sum + item.chance, 0);
-//     let random = Math.random() * total;
-//     for (const item of pool) {
-//       if (random < item.chance) return item;
-//       random -= item.chance;
-//     }
-//     return pool[pool.length - 1];
+//     const randomIndex = Math.floor(Math.random() * pool.length);
+//     return pool[randomIndex];
 //   }
 
 //   const handleSpin = async () => {
@@ -121,23 +115,21 @@
 
 //         const totalTasks = localStorage.getItem("totalTasks") || 0;
 
-// // 2. Calculate total minutes (each task is 50 minutes)
-// const totalMinutes = totalTasks * 60;
-// const hours = Math.floor(totalMinutes / 60);
-// const mins = totalMinutes % 60;
+//         // 2. Calculate total minutes (each task is 50 minutes)
+//         const totalMinutes = totalTasks * 60;
+//         const hours = Math.floor(totalMinutes / 60);
+//         const mins = totalMinutes % 60;
 
-// // 3. Format it into a clean string (e.g., "1 hr 30 mins" or "60 minutes")
-// let studiedDuration = "";
-// if (hours > 0) {
-//   studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
-// } else {
-//   studiedDuration = `${mins} minutes`;
-// }
+//         // 3. Format it into a clean string (e.g., "1 hr 30 mins" or "60 minutes")
+//         let studiedDuration = "";
+//         if (hours > 0) {
+//           studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
+//         } else {
+//           studiedDuration = `${mins} minutes`;
+//         }
 
-// // 4. Send the Email Alert!
-// sendEmailAlert("himanshu623355@gmail.com", studiedDuration);
-       
-
+//         // 4. Send the Email Alert!
+//         sendEmailAlert("himanshu623355@gmail.com", studiedDuration);
 //       } else {
 //         setTimeLeft(remaining);
 //       }
@@ -155,11 +147,9 @@
 //       await claimTime.current.play();
 
 //       const startedAt = Date.now();
-      
-//       // Using the actual reward minutes for the countdown (e.g., 30 * 60 = 1800 seconds)
-//        const totalSeconds = rewardMinutes * 60; 
 
-     
+//       // Using the actual reward minutes for the countdown (e.g., 30 * 60 = 1800 seconds)
+//       const totalSeconds = rewardMinutes * 60;
 
 //       localStorage.setItem(`timer-${uuid}`, JSON.stringify({ startedAt, duration: totalSeconds }));
 //       setTimeLeft(totalSeconds);
@@ -212,7 +202,6 @@
 //       </button>
 
 //       <div className="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-6 w-full h-screen px-6">
-        
 //         {/* ================= Spin Wheel ================= */}
 //         <div className="w-full max-w-[800px] max-h-[90vh] overflow-hidden bg-[#16181d] border-2 border-gray-700 rounded-3xl shadow-2xl">
 //           <div className="flex justify-between items-center px-6 py-4 bg-[#23262d] border-b border-gray-700">
@@ -287,47 +276,76 @@
 // }
 
 
-
-
 import React, { useState, useRef, useEffect } from "react";
 import { getDiamond, removeDiamond, addReward, removeReward, sendEmailAlert } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { FaStudiovinari } from "react-icons/fa";
 
+// ---- Reward sequence (repeats in a loop): 20 -> 60 -> 20 -> 60 ...
+const REWARDS = [
+  { duration: 1, video: "/30.mp4" },
+  { duration: 1, video: "/60.mp4" },
+];
+
+const WARNING_SECONDS = 30 ; // warn when 4 minutes are left
+
+// ---- Daily spin counter (resets automatically on a new day) ----
+const todayKey = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD (local time)
+
+const getSpinCountToday = (uuid) => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(`spinSeq-${uuid}`));
+    if (saved && saved.date === todayKey()) return saved.count;
+  } catch (error) {
+    console.log(error);
+  }
+  return 0; // new day -> first reward is always 20 min
+};
+
+const saveSpinCountToday = (uuid, count) => {
+  localStorage.setItem(
+    `spinSeq-${uuid}`,
+    JSON.stringify({ date: todayKey(), count })
+  );
+};
+
 export default function RoyalReward() {
+  const uuid = localStorage.getItem("uuid");
+
   const [diamonds, setDiamonds] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
   const [showReward, setShowReward] = useState(false);
+  const [spinCount, setSpinCount] = useState(() => getSpinCountToday(uuid));
+  const [alarmRinging, setAlarmRinging] = useState(false);
 
-  // --- Kept Only the Button Sounds ---
+  // --- Button sounds ---
   const claimTime = useRef(new Audio("/c.mp3"));
   const spin = useRef(new Audio("/d.mp3"));
+
+  // --- Warning alarm (4 min left) + keep-alive audio ---
+  const warnAudio = useRef(null);
+  const keepAliveAudio = useRef(null);
+  const warnedRef = useRef(false);
 
   const [rewardMinutes, setRewardMinutes] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
 
   const navigate = useNavigate();
-  const uuid = localStorage.getItem("uuid");
   const SPIN_COST = 10;
 
   const videoRef = useRef(null);
   const intervalRef = useRef(null);
   const spinningRef = useRef(false);
 
-  const email = localStorage.getItem("email");
+  const nextReward = REWARDS[spinCount % REWARDS.length];
 
-  // Equal odds now — each duration has the same 1-in-3 chance
-  const REWARDS = [
-    { duration: 30, video: "/30.mp4" },
-    { duration: 45, video: "/45.mp4" },
-    { duration: 60, video: "/60.mp4" },
-  ];
-
-  // ---- Cleanup Timer on Unmount ----
+  // ---- Cleanup on unmount ----
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (warnAudio.current) warnAudio.current.pause();
+      if (keepAliveAudio.current) keepAliveAudio.current.pause();
     };
   }, []);
 
@@ -346,16 +364,19 @@ export default function RoyalReward() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function pickReward(pool) {
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    return pool[randomIndex];
-  }
-
+  // ------------------------------------------------------------
+  // SPIN (sequence based, no random)
+  // ------------------------------------------------------------
   const handleSpin = async () => {
     if (spinningRef.current || playing || diamonds < SPIN_COST) return;
     spinningRef.current = true;
 
-    const reward = pickReward(REWARDS);
+    // Read fresh from storage so a new day always restarts at 20 min
+    const count = getSpinCountToday(uuid);
+    const reward = REWARDS[count % REWARDS.length];
+
+    saveSpinCountToday(uuid, count + 1);
+    setSpinCount(count + 1);
 
     // Play spin sound
     spin.current.currentTime = 0;
@@ -386,10 +407,64 @@ export default function RoyalReward() {
   };
 
   // ------------------------------------------------------------
+  // WARNING (4 min left): email + looping alarm
+  // ------------------------------------------------------------
+  const getStudiedDuration = () => {
+    const totalTasks = localStorage.getItem("totalTasks") || 0;
+    const totalMinutes = totalTasks * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+
+    if (hours > 0) {
+      return mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
+    }
+    return `${mins} minutes`;
+  };
+
+  const triggerWarning = () => {
+    // 1. Email alert
+    sendEmailAlert("himanshu623355@gmail.com", getStudiedDuration());
+
+    // 2. Looping alarm sound
+    if (!warnAudio.current) {
+      warnAudio.current = new Audio("/stop.mp3");
+    }
+    warnAudio.current.loop = true;
+    warnAudio.current.volume = 1;
+    warnAudio.current.currentTime = 0;
+    warnAudio.current.play().catch((error) => console.log("Alarm blocked:", error));
+
+    // 3. Show the stop button
+    setAlarmRinging(true);
+  };
+
+  const handleStopAlarm = () => {
+    if (warnAudio.current) {
+      warnAudio.current.pause();
+      warnAudio.current.currentTime = 0;
+    }
+    setAlarmRinging(false);
+  };
+
+  // Remember that the warning was already sent (so refresh doesn't resend it)
+  const markWarned = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(`timer-${uuid}`));
+      if (saved) {
+        localStorage.setItem(`timer-${uuid}`, JSON.stringify({ ...saved, warned: true }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // ------------------------------------------------------------
   // CORE TIMER LOGIC
   // ------------------------------------------------------------
-  const runTimer = (startedAt, totalSeconds) => {
+  const runTimer = (startedAt, totalSeconds, alreadyWarned = false) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+
+    warnedRef.current = alreadyWarned;
 
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
@@ -401,29 +476,30 @@ export default function RoyalReward() {
         setTimeLeft(0);
         localStorage.removeItem(`timer-${uuid}`);
 
-        const totalTasks = localStorage.getItem("totalTasks") || 0;
-
-        // 2. Calculate total minutes (each task is 50 minutes)
-        const totalMinutes = totalTasks * 60;
-        const hours = Math.floor(totalMinutes / 60);
-        const mins = totalMinutes % 60;
-
-        // 3. Format it into a clean string (e.g., "1 hr 30 mins" or "60 minutes")
-        let studiedDuration = "";
-        if (hours > 0) {
-          studiedDuration = mins > 0 ? `${hours} hr ${mins} mins` : `${hours} hours`;
-        } else {
-          studiedDuration = `${mins} minutes`;
-        }
-
-        // 4. Send the Email Alert!
-        sendEmailAlert("himanshu623355@gmail.com", studiedDuration);
+        // Reward is over -> stop all audio
+        handleStopAlarm();
+        if (keepAliveAudio.current) keepAliveAudio.current.pause();
       } else {
         setTimeLeft(remaining);
+
+        // 4 minutes left -> fire the warning once
+        if (remaining <= WARNING_SECONDS && !warnedRef.current) {
+          warnedRef.current = true;
+          markWarned();
+          triggerWarning();
+        }
       }
     }, 1000);
 
     intervalRef.current = interval;
+  };
+
+  const startKeepAlive = () => {
+    if (!keepAliveAudio.current) {
+      keepAliveAudio.current = new Audio("/silent-loop.mp3");
+      keepAliveAudio.current.loop = true;
+    }
+    keepAliveAudio.current.play().catch(() => {});
   };
 
   const startTimer = async () => {
@@ -434,18 +510,21 @@ export default function RoyalReward() {
       claimTime.current.currentTime = 0;
       await claimTime.current.play();
 
-      const startedAt = Date.now();
+      startKeepAlive();
 
-      // Using the actual reward minutes for the countdown (e.g., 30 * 60 = 1800 seconds)
+      const startedAt = Date.now();
       const totalSeconds = rewardMinutes * 60;
 
-      localStorage.setItem(`timer-${uuid}`, JSON.stringify({ startedAt, duration: totalSeconds }));
+      localStorage.setItem(
+        `timer-${uuid}`,
+        JSON.stringify({ startedAt, duration: totalSeconds, warned: false })
+      );
       setTimeLeft(totalSeconds);
 
       await removeReward(uuid);
       setRewardMinutes(0);
 
-      runTimer(startedAt, totalSeconds);
+      runTimer(startedAt, totalSeconds, false);
     } catch (error) {
       console.log(error);
     }
@@ -457,7 +536,7 @@ export default function RoyalReward() {
     const saved = localStorage.getItem(`timer-${uuid}`);
     if (!saved) return;
 
-    const { startedAt, duration } = JSON.parse(saved);
+    const { startedAt, duration, warned } = JSON.parse(saved);
     const elapsed = Math.floor((Date.now() - startedAt) / 1000);
     const remaining = duration - elapsed;
 
@@ -467,7 +546,8 @@ export default function RoyalReward() {
     }
 
     setTimeLeft(remaining);
-    runTimer(startedAt, duration);
+    startKeepAlive();
+    runTimer(startedAt, duration, !!warned);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uuid]);
 
@@ -522,6 +602,9 @@ export default function RoyalReward() {
               <FaStudiovinari className="text-2xl" />
               <span>{SPIN_COST} SPIN</span>
             </button>
+            <p className="mt-2 text-center text-sm text-white/60">
+              Next reward: {nextReward.duration} min
+            </p>
           </div>
         </div>
 
@@ -539,7 +622,17 @@ export default function RoyalReward() {
               {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
             </p>
 
-            {/* Conditionally render the button based on the timer status */}
+            {/* Stop alarm button (shows only when the 4-min warning is ringing) */}
+            {alarmRinging && (
+              <button
+                onClick={handleStopAlarm}
+                className="mt-8 w-full rounded-2xl bg-yellow-500 hover:bg-yellow-600 py-4 font-bold text-black transition animate-pulse"
+              >
+                ⏰ 4 min left — Stop Alarm
+              </button>
+            )}
+
+            {/* Consume / Running button */}
             {!isTimerActive ? (
               <button
                 onClick={startTimer}
