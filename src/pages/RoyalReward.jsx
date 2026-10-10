@@ -602,9 +602,7 @@ export default function RoyalReward() {
               <FaStudiovinari className="text-2xl" />
               <span>{SPIN_COST} SPIN</span>
             </button>
-            <p className="mt-2 text-center text-sm text-white/60">
-              Next reward: {nextReward.duration} min
-            </p>
+        
           </div>
         </div>
 
