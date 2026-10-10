@@ -20,7 +20,7 @@ import {
 } from "../services/authService";
 
 const POLL_INTERVAL = 5000;
-const DURATION = 10;
+const DURATION = 60 * 60;
 
 const getSavedActiveTask = () => {
   try {

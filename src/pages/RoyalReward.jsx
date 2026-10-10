@@ -283,11 +283,11 @@ import { FaStudiovinari } from "react-icons/fa";
 
 // ---- Reward sequence (repeats in a loop): 20 -> 60 -> 20 -> 60 ...
 const REWARDS = [
-  { duration: 1, video: "/30.mp4" },
-  { duration: 1, video: "/60.mp4" },
+  { duration: 20, video: "/20.mp4" },
+  { duration: 60, video: "/60.mp4" },
 ];
 
-const WARNING_SECONDS = 30 ; // warn when 4 minutes are left
+const WARNING_SECONDS = 4*60 ; // warn when 4 minutes are left
 
 // ---- Daily spin counter (resets automatically on a new day) ----
 const todayKey = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD (local time)
@@ -427,7 +427,7 @@ export default function RoyalReward() {
 
     // 2. Looping alarm sound
     if (!warnAudio.current) {
-      warnAudio.current = new Audio("/stop.mp3");
+      warnAudio.current = new Audio("/neffex.mp3");
     }
     warnAudio.current.loop = true;
     warnAudio.current.volume = 1;
@@ -626,9 +626,9 @@ export default function RoyalReward() {
             {alarmRinging && (
               <button
                 onClick={handleStopAlarm}
-                className="mt-8 w-full rounded-2xl bg-yellow-500 hover:bg-yellow-600 py-4 font-bold text-black transition animate-pulse"
+                className="mt-8 w-full rounded-2xl bg-green-500 hover:bg-black-600 py-4 font-bold text-black "
               >
-                ⏰ 4 min left — Stop Alarm
+                4 min left — Stop Alarm
               </button>
             )}
 
