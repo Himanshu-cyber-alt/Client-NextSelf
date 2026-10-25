@@ -44,7 +44,7 @@ const getSavedActiveTask = () => {
 };
 
 export default function Dashboard() {
-  console.log("Dashboard is rendering");
+
 
   const savedActiveTask = getSavedActiveTask();
 

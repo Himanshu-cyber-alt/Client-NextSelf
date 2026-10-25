@@ -83,7 +83,7 @@ export const removeDiamond = async (uuid)=>{
  
   const result = await axios.post(`${API}/remove-diamond/${uuid}`);
 
-  console.log("remove ", result)
+
    return result.data;
 }
 
@@ -168,18 +168,10 @@ export const getGrowthTopics = async (uuid) => {
   return response.data;
 };
 
-// export const addGrowthTopic = async (uuid, topic) => {
-
-//   console.log(uuid)
-//   const response = await axios.post(`${API}/growth/add`, { uuid, topic });
-
-//   return response.data;
-// };
-
 
 
 export const addGrowthTopic = async (uuid, topic, targetHours) => {
-  console.log(uuid)
+ 
   const response = await axios.post(`${API}/growth/add`, { uuid, topic, targetHours });
   return response.data;
 };
